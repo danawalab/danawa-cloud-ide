@@ -1,0 +1,34 @@
+image: dcr.danawa.io/alpine-k8s
+stages:
+- install
+- build
+- deploy
+before_script:
+- mkdir ~/.ssh -p
+- cp ${id_rsa} ~/.ssh/id_rsa
+- cp ${id_rsa_pub} ~/.ssh/id_rsa.pub
+- echo "Host *" > ~/.ssh/config
+- echo "StrictHostKeyChecking no" > ~/.ssh/config
+- chmod 600 ~/.ssh -R
+build:
+  stage: build
+  when: manual
+  script:
+  - yum install git -y
+  - git clone git@gitlab.danawa.com:ysban/ojt-ide.git
+  - cd ojt-ide
+  - git branch -v
+  - rm -rf package-lock.json
+  - npm cache clean -f
+  - npm install
+  - export VERSION="$(cat package.json | grep version | head -1 | awk -F= "{ print $2 }" | sed -E 's/(version)|[:,\",]//g' | tr -d '[[:space:]]')"
+  - docker build -t ${REGISTRY}/${IMAGE}:latest .
+  - docker tag ${REGISTRY}/${IMAGE}:latest ${REGISTRY}/${IMAGE}:${VERSION}
+  - docker push ${REGISTRY}/${IMAGE}:latest
+  - docker push ${REGISTRY}/${IMAGE}:${VERSION}
+deploy:
+  stage: deploy
+  when: manual
+  script:
+  - echo curl -H "x-auth-token=${ESAPI1_TOKEN}" -XPUT ${ESAPI1_URL}
+  - curl -H "x-auth-token=${ESAPI1_TOKEN}" -XPUT ${ESAPI1_URL}
