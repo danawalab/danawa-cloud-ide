@@ -73,6 +73,25 @@ app.post("/api/insert", (req, res) => {
   );
 });
 
+// 회원가입
+app.post("/api/join", (req, res) => {
+  console.log(req.body);
+  const user_id = req.body.user_id;
+  const user_pwd = req.body.user_pwd;
+
+  db.query(
+    "INSERT INTO USER_INFO(USER_ID, USER_PWD, UPDATE_DTS, INSERT_DTS) " + "VALUES (	(?), (?), NOW(), NOW())",
+    [
+      user_id,
+      user_pwd
+    ],
+    (err, data) => {
+      if (!err) res.send({ container: data });
+      else res.send(err);
+    }
+  );
+});
+
 app.post("/api/portscan", (req, res) => {
     var portastic = require('portastic');
 
