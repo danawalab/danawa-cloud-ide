@@ -27,7 +27,7 @@ async function createContainer(port, pickImage) {
       url: "/containers/create",
       data: {
         Hostname: "test",
-        Image: pickImage === "java" ? "java_spring_vscode:latest" : "nodejs_vscode:latest",
+        Image: pickImage === "java" ? "dcr-ui.danawa.io/java_spring_vscode:latest" : "dcr-ui.danawa.io/nodejs_vscode:latest",
         ExposedPorts: {
           "10000/tcp": {},
         },

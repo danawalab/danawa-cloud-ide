@@ -1,9 +1,7 @@
-version: "3"
+version: "2"
 services: 
   frontend:
-    build:
-      dockerfile: Dockerfile
-      context: ./
+    image: dcr-ui.danawa.io/ojt_ide_frontend:latest
     container_name: app_frontend
     ports:
         - "3000:3000"
@@ -13,22 +11,16 @@ services:
     stdin_open: true
 
   backend:
-    build: 
-      dockerfile: Dockerfile
-      context: ./server
+    image: dcr-ui.danawa.io/ojt_ide_backend:latest
     container_name: app_backend
     volumes:
       - /app/node_modules
       - ./server:/app
 
   mysql:
-    build:
-      dockerfile: Dockerfile
-      context: ./mysql
+    image: dcr.danawa.io/ojt_ide_mysql:latest
     restart: unless-stopped
     container_name: app_mysql
-    ports:
-      - "3307:3307"
     volumes:
       - ./mysql/mysql_data:/var/lib/mysql
       - ./mysql/sqls/:/docker-entrypoint-initdb.d/
