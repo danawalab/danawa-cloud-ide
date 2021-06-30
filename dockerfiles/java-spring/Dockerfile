@@ -27,4 +27,4 @@ RUN tar xzf code-server1.939-vsc1.33.1-linux-x64.tar.gz -C ./ --strip-components
 WORKDIR /home/danawa
 
 # -p 10000 => 지정할 컨테이너 번호 
-CMD /home/danawa/.code-server/code-server --allow-http --no-auth -p 10000
+CMD "git clone ${GIT_REPO} && /home/danawa/.code-server/code-server --allow-http --no-auth -p 10000"

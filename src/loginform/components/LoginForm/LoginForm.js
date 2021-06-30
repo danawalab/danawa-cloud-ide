@@ -21,7 +21,7 @@ class LoginForm extends Component {
         >
           <Grid.Column style={{ maxWidth: 450 }}>
             <Header as="h2" color="black" textAlign="center">
-              <Icon name="cloud" />
+              <Icon name="cloud" /> OJT_IDE.
             </Header>
             <Form size="large">
               <Segment stacked>

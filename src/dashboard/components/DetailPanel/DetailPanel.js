@@ -91,7 +91,7 @@ class DetailPanel extends Component {
           <Loader>컨테이너 삭제중..</Loader>
         </Dimmer>
         <div
-          className="content"
+          className="inner-content"
           style={itemsBool[0] ? { display: "block" } : { display: "none" }}
         >
           <Card className="container">

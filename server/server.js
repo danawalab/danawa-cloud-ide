@@ -5,6 +5,9 @@ const PORT = process.env.PORT || 4000;
 const db = require("./config/db");
 const cors = require("cors");
 const port = require('portastic');
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json())
 app.use(cors());
 
 // 컨테이너 조회
@@ -75,7 +78,6 @@ app.post("/api/insert", (req, res) => {
 
 // 회원가입
 app.post("/api/join", (req, res) => {
-  console.log(req.body);
   const user_id = req.body.user_id;
   const user_pwd = req.body.user_pwd;
 
