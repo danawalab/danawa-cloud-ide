@@ -21,7 +21,6 @@ build:
   - rm -rf package-lock.json
   - npm cache clean -f
   - npm install
-  - npm init
   - export VERSION="$(cat package.json | grep version | head -1 | awk -F= "{ print $2 }" | sed -E 's/(version)|[:,\",]//g' | tr -d '[[:space:]]')"
   - docker build -t ${REGISTRY}/${FRONT_IMAGE}:latest .
   - docker tag ${REGISTRY}/${FRONT_IMAGE}:latest ${REGISTRY}/${FRONT_IMAGE}:${VERSION}
