@@ -11,10 +11,10 @@ class App extends Component {
       <div>
         <BrowserRouter>
           <div>
-          <Route path="/" component={lPostContainer} exact></Route>
-          <Route path="/join" component={jPostContainer} exact></Route>
-          <Route path="/main" component={PostContainer}></Route>
-          <Route path="/newContainer" component={nPostContainer}></Route>
+            <Route path="/" component={lPostContainer} exact></Route>
+            <Route path="/join" component={jPostContainer}></Route>
+            <Route path="/main" component={PostContainer}></Route>
+            <Route path="/newContainer" component={nPostContainer}></Route>
           </div>
         </BrowserRouter>
       </div>

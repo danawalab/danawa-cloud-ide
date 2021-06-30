@@ -8,9 +8,64 @@ import {
   Message,
   Segment,
 } from "semantic-ui-react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
+import axios from "axios";
+
+async function compareUserInfo(state) {
+  return await axios({
+    method: "post",
+    url: "/api/login",
+    headers: { "Content-Type": "application/json" },
+    data: {
+      user_id: state.login_id,
+      user_pwd: state.login_pwd,
+    },
+  });
+}
 
 class LoginForm extends Component {
+  state = {
+    login_id: "",
+    login_pwd: "",
+    login_result: ""
+  };
+
+  loginProcess = async () => {
+    if(this.state.login_id !== "" && this.state.login_pwd !== ""){
+      var msg = await compareUserInfo(this.state);
+      
+      if(msg.data.container.length == 1){
+        const { history } = this.props;
+        history.push({
+          pathname: "/main",
+          state: this.state.login_id
+        });
+      } else {
+        this.setState({
+          login_result : "아이디, 비밀번호 불일치"
+        });
+      }
+    } else {
+      this.setState({
+        login_result : "아이디, 비밀번호 미입력"
+      });
+    }
+  };
+
+  changeId = (e) => {
+    this.setState({
+      login_id : e.target.value,
+      login_result : ""
+    });
+  };
+
+  changePwd = (e) => {
+    this.setState({
+      login_pwd : e.target.value,
+      login_result : ""
+    });
+  };
+
   render() {
     return (
       <div>
@@ -29,6 +84,7 @@ class LoginForm extends Component {
                   fluid
                   icon="user"
                   iconPosition="left"
+                  onChange={this.changeId}
                   placeholder="아이디"
                 />
                 <Form.Input
@@ -36,9 +92,15 @@ class LoginForm extends Component {
                   icon="lock"
                   iconPosition="left"
                   placeholder="비밀번호"
+                  onChange={this.changePwd}
                   type="password"
                 />
-                <Button color="grey" fluid size="large">
+                <Button
+                  color="grey"
+                  fluid
+                  size="large"
+                  onClick={this.loginProcess}
+                >
                   로그인
                 </Button>
               </Segment>
@@ -48,6 +110,19 @@ class LoginForm extends Component {
                 <h4>회원 신규 등록</h4>
               </Link>
             </Message>
+            <Message
+              style={
+                this.state.login_result === ""
+                  ? { display: "none" }
+                  : { display: "block" }
+              }
+              negative
+            >
+              <Message.Header>* 로그인 실패 *</Message.Header>
+              <div>
+                {this.state.login_result} <div>{this.state.join_failMsg}</div>
+              </div>
+            </Message>
           </Grid.Column>
         </Grid>
       </div>
@@ -55,4 +130,4 @@ class LoginForm extends Component {
   }
 }
 
-export default LoginForm;
+export default withRouter(LoginForm);

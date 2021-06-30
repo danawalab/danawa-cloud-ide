@@ -94,6 +94,21 @@ app.post("/api/join", (req, res) => {
   );
 });
 
+// 로그인
+app.post("/api/login", (req, res) => {
+  const user_id = req.body.user_id;
+  const user_pwd = req.body.user_pwd;
+  db.query(
+    "SELECT * FROM USER_INFO WHERE USER_ID = (?) AND USER_PWD = (?)",
+    [user_id, user_pwd],
+    (err, data) => {
+      if (!err) res.send({ container: data });
+      else res.send(err);
+    }
+  );
+});
+
+
 app.post("/api/portscan", (req, res) => {
     var portastic = require('portastic');
 

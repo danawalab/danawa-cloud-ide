@@ -4,11 +4,7 @@ import { Header, LeftWrapper, RightWrapper, SideBar, DetailPanel } from "../../c
 class PostContainer extends Component {
   constructor(props){
     super(props);
-    this.state = {userId: "Danawa1"}
-  }
-
-  handleCreate = data => {
-    this.setState({userId : data.id});
+    this.state = {userId: props.location.state}
   }
 
   render() {
@@ -19,7 +15,7 @@ class PostContainer extends Component {
         </div>
         <div>
           <LeftWrapper>
-            <SideBar onCreate={this.handleCreate}/>
+            <SideBar userId={this.state}></SideBar>
           </LeftWrapper>
         </div>
         <div>
