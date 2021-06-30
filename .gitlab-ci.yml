@@ -22,10 +22,18 @@ build:
   - npm cache clean -f
   - npm install
   - export VERSION="$(cat package.json | grep version | head -1 | awk -F= "{ print $2 }" | sed -E 's/(version)|[:,\",]//g' | tr -d '[[:space:]]')"
-  - docker build -t ${REGISTRY}/${IMAGE}:latest .
-  - docker tag ${REGISTRY}/${IMAGE}:latest ${REGISTRY}/${IMAGE}:${VERSION}
-  - docker push ${REGISTRY}/${IMAGE}:latest
-  - docker push ${REGISTRY}/${IMAGE}:${VERSION}
+  - docker build -t ${REGISTRY}/${FRONT_IMAGE}:latest .
+  - docker tag ${REGISTRY}/${FRONT_IMAGE}:latest ${REGISTRY}/${FRONT_IMAGE}:${VERSION}
+  - docker push ${REGISTRY}/${FRONT_IMAGE}:latest
+  - docker push ${REGISTRY}/${FRONT_IMAGE}:${VERSION}
+  - docker build -t ${REGISTRY}/${BACKEND_IMAGE}:latest .
+  - docker tag ${REGISTRY}/${BACKEND_IMAGE}:latest ${REGISTRY}/${BACKEND_IMAGE}:${VERSION}
+  - docker push ${REGISTRY}/${BACKEND_IMAGE}:latest
+  - docker push ${REGISTRY}/${BACKEND_IMAGE}:${VERSION}
+  - docker build -t ${REGISTRY}/${MYSQL_IMAGE}:latest .
+  - docker tag ${REGISTRY}/${MYSQL_IMAGE}:latest ${REGISTRY}/${MYSQL_IMAGE}:${VERSION}
+  - docker push ${REGISTRY}/${MYSQL_IMAGE}:latest
+  - docker push ${REGISTRY}/${MYSQL_IMAGE}:${VERSION}
 deploy:
   stage: deploy
   when: manual
