@@ -8,10 +8,10 @@ module.exports = function (app) {
     //         changeOrigin: true
     //     })
     // );
-//     app.use(
-//         createProxyMiddleware('/', {
-//             target : 'http://es2.danawa.io:3000',
-//             changeOrigin: true
-//         })
-//     );
+    // app.use(
+    //     createProxyMiddleware('/', {
+    //         target : 'http://es2.danawa.io:3000',
+    //         changeOrigin: true
+    //     })
+    // );
 }
