@@ -4,8 +4,9 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 module.exports = function (app) {
     app.use(
         createProxyMiddleware('/containers', {
-            target : '*',
-            changeOrigin: true
+            target : 'http://localhost:2375',
+            changeOrigin: true,
+            secure: false
         })
     );
 }
