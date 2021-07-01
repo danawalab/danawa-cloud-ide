@@ -43,3 +43,7 @@ deploy:
   script:
   - echo curl -H "x-auth-token=${ESAPI1_TOKEN}" -XPUT ${ESAPI1_URL}
   - curl -H "x-auth-token=${ESAPI1_TOKEN}" -XPUT ${ESAPI1_URL}
+  - echo curl -H "x-auth-token=${ESAPI1_BACKEND_TOKEN}" -XPUT ${ESAPI1_BACKEND_URL}
+  - curl -H "x-auth-token=${ESAPI1_BACKEND_TOKEN}" -XPUT ${ESAPI1_BACKEND_URL}
+  - echo curl -H "x-auth-token=${ESAPI1_MYSQL_TOKEN}" -XPUT ${ESAPI1_MYSQL_URL}
+  - curl -H "x-auth-token=${ESAPI1_MYSQL_TOKEN}" -XPUT ${ESAPI1_MYSQL_URL}
