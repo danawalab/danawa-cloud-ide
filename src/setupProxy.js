@@ -9,9 +9,10 @@ module.exports = function (app) {
         })
     );
     app.use(
-        createProxyMiddleware('/api/join', {
+        createProxyMiddleware('/api/*', {
             target : 'http://localhost:4000',
-            changeOrigin: true
+            changeOrigin: true,
+            secure: false
         })
     );
 }
