@@ -37,6 +37,13 @@ build:
   - docker tag ${REGISTRY}/${MYSQL_IMAGE}:latest ${REGISTRY}/${MYSQL_IMAGE}:${VERSION}
   - docker push ${REGISTRY}/${MYSQL_IMAGE}:latest
   - docker push ${REGISTRY}/${MYSQL_IMAGE}:${VERSION}
+  - cd ..
+  - cd dockerfiles/java-spring
+  - docker build -t dcr.danawa.io/java_spring_vscode:latest .
+  - cd ..
+  - cd node
+  - docker build -t dcr.danawa.io/nodejs_vscode:latest .
+  
 deploy:
   stage: deploy
   when: manual
