@@ -1,3 +1,6 @@
+FROM ubuntu:18.04
+COPY . /app
+
 FROM openjdk:11
 
 # GRADLE
@@ -27,4 +30,4 @@ RUN tar xzf code-server1.939-vsc1.33.1-linux-x64.tar.gz -C ./ --strip-components
 WORKDIR /home/danawa
 
 # -p 10000 => 지정할 컨테이너 번호 
-CMD git clone home/danawa/.code-server/code-server --allow-http --no-auth -p 10000
+CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --allow-http --no-auth -p 10000"]

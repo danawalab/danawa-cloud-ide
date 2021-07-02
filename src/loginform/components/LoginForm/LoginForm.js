@@ -29,16 +29,21 @@ class LoginForm extends Component {
     login_pwd: "",
     login_result: ""
   };
-
   loginProcess = async () => {
     if(this.state.login_id !== "" && this.state.login_pwd !== ""){
-      var msg = await compareUserInfo(this.state);
+      let msg = ""
       
+      try{
+        msg = await compareUserInfo(this.state);
+      }catch(e){
+        console.error(e)
+      }
+
       if(msg.data.container.length == 1){
         const { history } = this.props;
+        window.localStorage.setItem("user_id", this.state.login_id);
         history.push({
-          pathname: "/main",
-          state: this.state.login_id
+          pathname: "/main"
         });
       } else {
         this.setState({

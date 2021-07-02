@@ -9,7 +9,7 @@ class DetailPanel extends Component {
   state = {
     container: null,
     loadOfDatas: false,
-    userId: this.props.userId,
+    userId: window.localStorage.getItem("user_id"),
     port: null
   };
   
@@ -19,9 +19,10 @@ class DetailPanel extends Component {
   }
 
   // 컨테이너 조회
-  _getContainer = async (nextState) => {
-    const res = await axios.post("/api/search", {userId : nextState || this.state.userId});
-    this.setState({ container: res.data.container, loadOfDatas: false, userId : this.props.userId });
+  _getContainer = async () => {
+    const res = await axios.post("/api/search", {userId : window.localStorage.getItem("user_id")});
+    console.log(res);
+    this.setState({ container: res.data.container, loadOfDatas: false});
   };
 
   // state 변경사항 있을때 다시 그리기 여부
@@ -31,10 +32,6 @@ class DetailPanel extends Component {
       return true;
     } else if (nextState.loadOfDatas !== this.state.loadOfDatas) {
       // 로딩창 다시 그리기
-      return true;
-    } else if (nextProps.userId !== this.state.userId) {
-      // 유저 선택시 다시 그리기
-      this._getContainer(nextProps.userId);
       return true;
     } else {
       return false;
@@ -54,9 +51,8 @@ class DetailPanel extends Component {
       console.log(e);
     } finally {
       await axios.post("/api/delete", data);
+      await this._getContainer();
     }
-
-    this._getContainer();
   };
   
   // pushButtons = () => {
@@ -88,7 +84,7 @@ class DetailPanel extends Component {
         </Link>
 
         <Dimmer active={this.state.loadOfDatas}>
-          <Loader>컨테이너 삭제중..</Loader>
+          <Loader></Loader>
         </Dimmer>
         <div
           className="inner-content"
@@ -107,7 +103,7 @@ class DetailPanel extends Component {
               </Label>
               <Label className="container-text-zone" color="yellow">
                 Region
-                <Label.Detail>{itemsBool[0] ? items[0].region_cd : ""}</Label.Detail>
+                <Label.Detail>대한민국</Label.Detail>
               </Label>
               <Button
                 className="content-button"
