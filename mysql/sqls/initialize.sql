@@ -3,7 +3,7 @@ DROP DATABASE IF EXISTS react;
 CREATE DATABASE react;
 USE react;
 
-create table container_info 
+create table CONTAINER_INFO 
   (
   	user_id varchar(32) not null,
   	container_id varchar(32) not null primary key,
@@ -20,7 +20,7 @@ create table container_info
  	insert_dts datetime
   );
 
-create table user_info 
+create table USER_INFO 
 (
 	user_id varchar(32) not null primary key,
 	user_pwd varchar(32) not null,

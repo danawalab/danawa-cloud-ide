@@ -54,25 +54,53 @@ class DetailPanel extends Component {
       await this._getContainer();
     }
   };
-  
-  // pushButtons = () => {
-  //   console.log(this.state);
-  // }
 
   render() {
-    let items = this.state.container;
-    let itemsBool = [false, false, false, false, false];
-
-    for(var i=0; i<5; i++){
-      if(items != null && items.length > i){
-        itemsBool[i] = true;
-        // this.setState({port : items[i].port});
-      }
-    } 
+    var containerList = []; 
+    
+    if(this.state.container !== null) {
+      containerList = this.state.container.map((item, i) => (
+        <div
+            className="inner-content"
+            key={i}
+          >
+            <Card className="container">
+              <Card.Content header={item.container_nm} />
+              <Card.Content
+                id="card"
+                description={item.note_txt}
+              />
+              <Card.Content extra>
+                <Label className="container-text-lang" color="teal">
+                  Language
+                  <Label.Detail>{item.stack_cd}</Label.Detail>
+                </Label>
+                <Label className="container-text-zone" color="yellow">
+                  Region
+                  <Label.Detail>대한민국</Label.Detail>
+                </Label>
+                <Button
+                  className="content-button"
+                  content="▶ 터미널 실행"
+                  color="black"
+                  onClick={() => window.open("http://localhost/" + window.localStorage.getItem("user_id") + "/" + item.port +"/", "_blank")}
+                ></Button>
+              </Card.Content>
+              <Button
+                color="blue"
+                className="delete-button"
+                content="삭제"
+                size="mini"
+                value="0"
+                onClick={this.handleDelete}
+              />
+            </Card>
+          </div>
+      ));
+    }
 
     return (
       <div className="DetailPanel">
-        {/* <Button onClick={this.pushButtons}>테스트버튼</Button> */}
         <h3>컨테이너</h3>
         
         <Link to={{pathname : '/newContainer', state : this.state}}>
@@ -86,192 +114,13 @@ class DetailPanel extends Component {
         <Dimmer active={this.state.loadOfDatas}>
           <Loader></Loader>
         </Dimmer>
-        <div
-          className="inner-content"
-          style={itemsBool[0] ? { display: "block" } : { display: "none" }}
-        >
-          <Card className="container">
-            <Card.Content header={itemsBool[0] ? items[0].container_nm : ""} />
-            <Card.Content
-              id="card"
-              description={itemsBool[0] ? items[0].note_txt : ""}
-            />
-            <Card.Content extra>
-              <Label className="container-text-lang" color="teal">
-                Language
-                <Label.Detail>{itemsBool[0] ? items[0].stack_cd : ""}</Label.Detail>
-              </Label>
-              <Label className="container-text-zone" color="yellow">
-                Region
-                <Label.Detail>대한민국</Label.Detail>
-              </Label>
-              <Button
-                className="content-button"
-                content="▶ 터미널 실행"
-                color="black"
-                onClick={() => window.open("http://localhost:"+ items[0].port +"/", "_blank")}
-              ></Button>
-            </Card.Content>
-            <Button
-              color="blue"
-              className="delete-button"
-              content="삭제"
-              size="mini"
-              value="0"
-              onClick={this.handleDelete}
-            />
-          </Card>
-        </div>
-        <div
-          className="content"
-          style={itemsBool[1] ? { display: "block" } : { display: "none" }}
-        >
-          <Card className="container">
-            <Card.Content header={itemsBool[1] ? items[1].container_nm : ""} />
-            <Card.Content
-              id="card"
-              description={itemsBool[1] ? items[1].note_txt : ""}
-            />
-            <Card.Content extra>
-              <Label className="container-text-lang" color="teal">
-                Language
-                <Label.Detail>{itemsBool[1] ? items[1].stack_cd : ""}</Label.Detail>
-              </Label>
-              <Label className="container-text-zone" color="yellow">
-                Region
-                <Label.Detail>{itemsBool[1] ? items[1].region_cd : ""}</Label.Detail>
-              </Label>
-              <Button
-                className="content-button"
-                content="▶ 터미널 실행"
-                color="black"
-                onClick={() => window.open("http://localhost:"+ items[1].port +"/", "_blank")}
-              ></Button>
-            </Card.Content>
-            <Button
-              color="blue"
-              className="delete-button"
-              content="삭제"
-              size="mini"
-              value="1"
-              onClick={this.handleDelete}
-            />
-          </Card>
-        </div>
-        <div
-          className="content"
-          style={itemsBool[2] ? { display: "block" } : { display: "none" }}
-        >
-          <Card className="container">
-            <Card.Content header={itemsBool[2] ? items[2].container_nm : ""} />
-            <Card.Content
-              id="card"
-              description={itemsBool[2] ? items[2].note_txt : ""}
-            />
-            <Card.Content extra>
-              <Label className="container-text-lang" color="teal">
-                Language
-                <Label.Detail>{itemsBool[2] ? items[2].stack_cd : ""}</Label.Detail>
-              </Label>
-              <Label className="container-text-zone" color="yellow">
-                Region
-                <Label.Detail>{itemsBool[2] ? items[2].region_cd : ""}</Label.Detail>
-              </Label>
-              <Button
-                className="content-button"
-                content="▶ 터미널 실행"
-                color="black"
-                onClick={() => window.open("http://localhost:"+ items[2].port +"/", "_blank")}
-              ></Button>
-            </Card.Content>
-            <Button
-              color="blue"
-              className="delete-button"
-              content="삭제"
-              size="mini"
-              value="2"
-              onClick={this.handleDelete}
-            />
-          </Card>
-        </div>
-        <div
-          className="content"
-          style={itemsBool[3] ? { display: "block" } : { display: "none" }}
-        >
-          <Card className="container">
-            <Card.Content header={itemsBool[3] ? items[3].container_nm : ""} />
-            <Card.Content
-              id="card"
-              description={itemsBool[3] ? items[3].note_txt : ""}
-            />
-            <Card.Content extra>
-              <Label className="container-text-lang" color="teal">
-                Language
-                <Label.Detail>{itemsBool[3] ? items[3].stack_cd : ""}</Label.Detail>
-              </Label>
-              <Label className="container-text-zone" color="yellow">
-                Region
-                <Label.Detail>{itemsBool[3] ? items[3].region_cd : ""}</Label.Detail>
-              </Label>
-              <Button
-                className="content-button"
-                content="▶ 터미널 실행"
-                color="black"
-                onClick={() => window.open("http://localhost:"+ items[3].port +"/", "_blank")}
-              ></Button>
-            </Card.Content>
-            <Button
-              color="blue"
-              className="delete-button"
-              content="삭제"
-              size="mini"
-              value="3"
-              onClick={this.handleDelete}
-            />
-          </Card>
-        </div>
-        <div
-          className="content"
-          style={itemsBool[4] ? { display: "block" } : { display: "none" }}
-        >
-          <Card className="container">
-            <Card.Content header={itemsBool[4] ? items[4].container_nm : ""} />
-            <Card.Content
-              id="card"
-              description={itemsBool[4] ? items[4].note_txt : ""}
-            />
-            <Card.Content extra>
-              <Label className="container-text-lang" color="teal">
-                Language
-                <Label.Detail>{itemsBool[4] ? items[4].stack_cd : ""}</Label.Detail>
-              </Label>
-              <Label className="container-text-zone" color="yellow">
-                Region
-                <Label.Detail>{itemsBool[4] ? items[4].region_cd : ""}</Label.Detail>
-              </Label>
-              <Button
-                className="content-button"
-                content="▶ 터미널 실행"
-                color="black"
-                onClick={() => window.open("http://localhost:"+ items[4].port +"/", "_blank")}
-              ></Button>
-            </Card.Content>
-            <Button
-              color="blue"
-              className="delete-button"
-              content="삭제"
-              size="mini"
-              value="4"
-              onClick={this.handleDelete}
-            />
-          </Card>
-        </div>
+        
+        {containerList}
+
         <Link to={{pathname : '/newContainer', state : this.state}}>          
           <div className="content">
             <h4 className="content-text">
-              {items != null && items.length > 0
-                ? "새 컨테이너 (" + items.length + "/5)"
-                : "새 컨테이너 (0/5)"}
+              Create More..
             </h4>
             <img src={img} width="300" height="300" alt="새 컨테이너" />
           </div>

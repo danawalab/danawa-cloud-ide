@@ -10,7 +10,7 @@ import {
   Confirm,
   Message,
   Dimmer,
-  Loader,
+  Loader  
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import java_icon from "./images/java_logo.svg";
@@ -18,7 +18,7 @@ import node_icon from "./images/node_js_logo.svg";
 import axios from "axios";
 
 // 도커를 통한 신규 컨테이너 생성 및 실행
-async function createContainer(port, pickImage, rep, useMysql) {
+async function createContainer(user_id, key, pickImage, rep, useMysql) {
   let c_id;
   try {
     let newContainer = await axios({
@@ -29,21 +29,31 @@ async function createContainer(port, pickImage, rep, useMysql) {
         Env: ["GIT_REP=" +   (rep !== "" ? "git clone " + rep : "")    , "MYSQL=" + (useMysql === "no" ? "" : "git clone https://github.com/mysqljs/mysql.git")],
         Image:
           pickImage === "java"
-            ? "dcr.danawa.io/java_spring_vscode:latest"
+            ? "simple_java:latest" // 트래픽과 같은 포트 사용할것
             : "dcr.danawa.io/nodejs_vscode:latest",
         ExposedPorts: {
-          "10000/tcp": {},
+          "80/tcp": {},
         },
+        Labels: {
+          "traefik.frontend.rule": "PathPrefixStrip:/"+ user_id + "/"+ key,
+          "traefik.backend": user_id + "-"+ key,
+          "traefik.port": "80",
+          "traefik.enable": "true",
+          "traefik.passHostHeader": "true",
+          "traefik.http.middlewares.test-redirectregex.redirectregex.regex":"^http://localhost/"+ user_id +"/"+ key + "/(.*)",
+          "traefik.http.middlewares.test-redirectregex.redirectregex.replacement":"http://localhost/"+ user_id +"/"+ key + "/$${1}"
+        }, 
         HostConfig: {
           Binds: [],
-          NetworkMode: "bridge",
-          //Exposed된 컨테이너의 포트와 지정한 호스트 포트 번호를 바인딩한다.
-          PortBindings: {
-            "10000/tcp": [
-              {
-                HostPort: String(port),
-              },
-            ],
+          NetworkMode: "web",
+        },
+        NetworkingConfig: {
+          EndpointsConfig: {
+            web: {
+              IPAMConfig: {},
+              Links: [],
+              Aliases: [],
+            },
           },
         },
       },
@@ -66,21 +76,12 @@ async function createContainer(port, pickImage, rep, useMysql) {
   return c_id;
 }
 
-// 컨테이너 조회
-async function getAlivePort() {
-  const res = axios({
-    method: "post",
-    url: "/api/portscan",
-  });
-
-  return res;
-}
-
 // 깃 레포지토리 조회
 async function getExistRepository(url) {
+  console.log(url);
   const res = axios({
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      "Access-Control-Allow-Origin": "*",
     },
     method: "get",
     url: url,
@@ -187,18 +188,21 @@ class MasterPanel extends Component {
       loadOfDatas: true,
       user_id: this.props.userId.userId,
     });
-    let res = await getAlivePort();
+
+    let con_key = Math.random().toString(36).substr(2,11);
+
     insertTable(
       await createContainer(
-        res.data.port,
+        window.localStorage.getItem("user_id"),
+        con_key,
         this.state.imageClicked,
         this.state.git.repo,
         this.state.pkg_1
       ),
       this.state,
-      res.data.port
+      con_key
     );
-    this.setState({ port: res.data.port });
+    this.setState({ port: con_key });
   };
 
   // 메인화면 이동
@@ -231,6 +235,15 @@ class MasterPanel extends Component {
     });
   };
 
+  // 현재 계정 로그아웃
+  execLogOut = () => {
+    const { history } = this.props;
+    window.localStorage.setItem("user_id", "");
+    history.push({
+        pathname: "/"
+    });
+  }
+
   handleCancel = () => this.setState({ result: "no", open: false });
   show = () => this.setState({ open: true });
 
@@ -245,8 +258,7 @@ class MasterPanel extends Component {
                 ? { display: "none" }
                 : { display: "block" }
             }
-          >
-          </Loader>
+          ></Loader>
           <div
             id="done-panel"
             style={
@@ -264,6 +276,9 @@ class MasterPanel extends Component {
             />
           </div>
         </Dimmer>
+        <Button size="large" color="black" onClick={this.execLogOut}>
+            로그아웃
+        </Button>
         <Button
           className="navigate-left-button"
           color="grey"
@@ -369,16 +384,8 @@ class MasterPanel extends Component {
                   placeholder="Git repository (ex. https://github.com/banhart123/dnw-ojt-ide.git)"
                   onChange={this.inputGitRep}
                 />
-                {/* <Button
-                  size="large"
-                  style={
-                    this.state.group3 === "non"
-                      ? { display: "none" }
-                      : { display: "inline" }
-                  }
-                  onClick={this.getCheckGitRep}
-                >
-                  <Icon name="check"></Icon> 테스트
+                {/* <Button size="large" style={{marginLeft: "5px"}} onClick={this.getCheckGitRep}>
+                  <Icon name="check"/> 체크
                 </Button> */}
               </Form.Group>
             </Form>
@@ -439,6 +446,24 @@ class MasterPanel extends Component {
               </Form.Group>
             </Form>
           </Segment>
+        </div>
+        <div>
+          <Button
+            className="navigate-bottom-button"
+            color="blue"
+            content="컨테이너 생성"
+            size="large"
+            onClick={this.show}
+          />
+          <Confirm
+            open={open}
+            header="컨테이너 생성"
+            content="컨테이너를 생성하시겠습니까?"
+            cancelButton="취소"
+            confirmButton="생성"
+            onCancel={this.handleCancel}
+            onConfirm={this.handleConfirm}
+          />
         </div>
       </div>
     );

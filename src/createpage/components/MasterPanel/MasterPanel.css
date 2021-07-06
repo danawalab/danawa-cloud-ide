@@ -55,6 +55,12 @@ h4 {
     top: -2.5vh;
 }
 
+.navigate-bottom-button {
+    position: relative;
+    float: right;
+    top: 2.5vh;
+}
+
 .navigate-left-button {
     position: relative;
     right: 0%;

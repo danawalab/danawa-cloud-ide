@@ -4,7 +4,6 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const db = require("./config/db");
 const cors = require("cors");
-const port = require('portastic');
 const bodyParser = require('body-parser');
 
 app.use(bodyParser.json())
@@ -101,19 +100,6 @@ app.post("/api/login", (req, res) => {
   );
 });
 
-
-app.post("/api/portscan", (req, res) => {
-    var portastic = require('portastic');
-
-    // 사용가능한 포트를 찾아냄
-    portastic.find({
-        min: 10001,
-        max: 19999
-    }).then(function(ports){
-        var selPort = ports[Math.floor(Math.random() * ports.length)];
-        res.send({port : selPort});
-    });
-});
 
 app.listen(PORT, () => {
   console.log(`Server On : http://localhost:${PORT}/`);
