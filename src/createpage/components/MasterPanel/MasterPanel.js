@@ -26,7 +26,7 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
       url: "/containers/create",
       data: {
         Hostname: "test",
-        Env: ["GIT_REP=" + (rep !== "" ? "git clone " + rep : " /home/danawa/works/" + (pickImage === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master")), "MYSQL=" + (useMysql === "no" ? "" : "git clone https://github.com/mysqljs/mysql.git")],
+        Env: ["GIT_REP=" + (rep !== "" ? "git clone " + rep + " /home/danawa/works/" + (pickImage === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master") : "")    , "MYSQL=" + (useMysql === "no" ? "" : "git clone https://github.com/mysqljs/mysql.git" + " /home/danawa/works/" + (pickImage === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master"))],
         Image:
           pickImage === "java"
             ? "dcr.danawa.io/java_spring_vscode:latest" // 트래픽과 같은 포트 사용할것
