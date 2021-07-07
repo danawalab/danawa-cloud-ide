@@ -24,10 +24,10 @@ RUN rm master.zip
 
 # code-server
 WORKDIR /home/danawa/.code-server
-RUN wget https://github.com/cdr/code-server/releases/download/1.939-vsc1.33.1/code-server1.939-vsc1.33.1-linux-x64.tar.gz
-RUN tar xzf code-server1.939-vsc1.33.1-linux-x64.tar.gz -C ./ --strip-components 1
+RUN wget https://github.com/cdr/code-server/releases/download/2.1638-vsc1.39.2/code-server2.1638-vsc1.39.2-linux-x86_64.tar.gz
+RUN tar xzf code-server2.1638-vsc1.39.2-linux-x86_64.tar.gz -C ./ --strip-components 1
 
 WORKDIR /home/danawa
 
 # -p 10000 => 지정할 컨테이너 번호 
-CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --allow-http --no-auth -p 80"]
+CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --auth none --port 3333"]

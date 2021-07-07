@@ -83,7 +83,7 @@ class DetailPanel extends Component {
                   className="content-button"
                   content="▶ 터미널 실행"
                   color="black"
-                  onClick={() => window.open("http://localhost/" + window.localStorage.getItem("user_id") + "/" + item.port +"/", "_blank")}
+                  onClick={() => window.open("http://es2.danawa.io/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa ", "_blank")}
                 ></Button>
               </Card.Content>
               <Button

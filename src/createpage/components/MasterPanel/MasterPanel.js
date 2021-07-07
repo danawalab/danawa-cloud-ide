@@ -29,19 +29,19 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
         Env: ["GIT_REP=" +   (rep !== "" ? "git clone " + rep : "")    , "MYSQL=" + (useMysql === "no" ? "" : "git clone https://github.com/mysqljs/mysql.git")],
         Image:
           pickImage === "java"
-            ? "simple_java:latest" // 트래픽과 같은 포트 사용할것
+            ? "dcr.danawa.io/java_spring_vscode:latest" // 트래픽과 같은 포트 사용할것
             : "dcr.danawa.io/nodejs_vscode:latest",
         ExposedPorts: {
-          "80/tcp": {},
+          "3333/tcp": {},
         },
         Labels: {
           "traefik.frontend.rule": "PathPrefixStrip:/"+ user_id + "/"+ key,
           "traefik.backend": user_id + "-"+ key,
-          "traefik.port": "80",
+          "traefik.port": "3333",
           "traefik.enable": "true",
           "traefik.passHostHeader": "true",
-          "traefik.http.middlewares.test-redirectregex.redirectregex.regex":"^http://localhost/"+ user_id +"/"+ key + "/(.*)",
-          "traefik.http.middlewares.test-redirectregex.redirectregex.replacement":"http://localhost/"+ user_id +"/"+ key + "/$${1}"
+          "traefik.http.middlewares.test-redirectregex.redirectregex.regex":"^http://es2.danawa.io/"+ user_id +"/"+ key + "/(.*)",
+          "traefik.http.middlewares.test-redirectregex.redirectregex.replacement":"http://es2.danawa.io/"+ user_id +"/"+ key + "/$${1}"
         }, 
         HostConfig: {
           Binds: [],
