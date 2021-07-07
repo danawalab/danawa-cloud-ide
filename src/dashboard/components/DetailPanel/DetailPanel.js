@@ -83,7 +83,7 @@ class DetailPanel extends Component {
                   className="content-button"
                   content="▶ 터미널 실행"
                   color="black"
-                  onClick={() => window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/works/" + item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master", "_blank")}
+                  onClick={() => window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/works/" + (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master"), "_blank")}
                 ></Button>
               </Card.Content>
               <Button
