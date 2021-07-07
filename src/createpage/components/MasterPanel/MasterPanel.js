@@ -10,7 +10,7 @@ import {
   Confirm,
   Message,
   Dimmer,
-  Loader  
+  Loader,
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import java_icon from "./images/java_logo.svg";
@@ -26,7 +26,25 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
       url: "/containers/create",
       data: {
         Hostname: "test",
-        Env: ["GIT_REP=" + (rep !== "" ? "git clone " + rep + " /home/danawa/works/" + (pickImage === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master") : "")    , "MYSQL=" + (useMysql === "no" ? "" : "git clone https://github.com/mysqljs/mysql.git" + " /home/danawa/works/" + (pickImage === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master"))],
+        Env: [
+          "GIT_REP=" +
+            (rep !== ""
+              ? "git clone " +
+                rep +
+                " /home/danawa/works/" +
+                (pickImage === "java"
+                  ? "spring-boot-helloworld-master/clone_space"
+                  : "node-js-sample-master/clone_space")
+              : ""),
+          "MYSQL=" +
+            (useMysql === "no"
+              ? ""
+              : "git clone https://github.com/mysqljs/mysql.git" +
+                " /home/danawa/works/" +
+                (pickImage === "java"
+                  ? "spring-boot-helloworld-master/mysql"
+                  : "node-js-sample-master/mysql")),
+        ],
         Image:
           pickImage === "java"
             ? "dcr.danawa.io/java_spring_vscode:latest" // 트래픽과 같은 포트 사용할것
@@ -35,14 +53,16 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
           "3333/tcp": {},
         },
         Labels: {
-          "traefik.frontend.rule": "PathPrefixStrip:/"+ user_id + "/"+ key,
-          "traefik.backend": user_id + "-"+ key,
+          "traefik.frontend.rule": "PathPrefixStrip:/" + user_id + "/" + key,
+          "traefik.backend": user_id + "-" + key,
           "traefik.port": "3333",
           "traefik.enable": "true",
           "traefik.passHostHeader": "true",
-          "traefik.http.middlewares.test-redirectregex.redirectregex.regex":"^http://es2.danawa.io/"+ user_id +"/"+ key + "/(.*)",
-          "traefik.http.middlewares.test-redirectregex.redirectregex.replacement":"http://es2.danawa.io/"+ user_id +"/"+ key + "/$${1}"
-        }, 
+          "traefik.http.middlewares.test-redirectregex.redirectregex.regex":
+            "^http://es2.danawa.io/" + user_id + "/" + key + "/(.*)",
+          "traefik.http.middlewares.test-redirectregex.redirectregex.replacement":
+            "http://es2.danawa.io/" + user_id + "/" + key + "/$${1}",
+        },
         HostConfig: {
           Binds: [],
           NetworkMode: "web",
@@ -189,7 +209,7 @@ class MasterPanel extends Component {
       user_id: this.props.userId.userId,
     });
 
-    let con_key = Math.random().toString(36).substr(2,11);
+    let con_key = Math.random().toString(36).substr(2, 11);
 
     insertTable(
       await createContainer(
@@ -240,9 +260,9 @@ class MasterPanel extends Component {
     const { history } = this.props;
     window.localStorage.setItem("user_id", "");
     history.push({
-        pathname: "/"
+      pathname: "/",
     });
-  }
+  };
 
   handleCancel = () => this.setState({ result: "no", open: false });
   show = () => this.setState({ open: true });
@@ -277,7 +297,7 @@ class MasterPanel extends Component {
           </div>
         </Dimmer>
         <Button size="large" color="black" onClick={this.execLogOut}>
-            로그아웃
+          로그아웃
         </Button>
         <Button
           className="navigate-left-button"
