@@ -466,23 +466,13 @@ class MasterPanel extends Component {
               </Form.Group>
             </Form>
           </Segment>
-        </div>
-        <div>
           <Button
-            className="navigate-bottom-button"
+            // className="navigate-bottom-button"
+            style={{float:"right"}}
             color="blue"
             content="컨테이너 생성"
             size="large"
             onClick={this.show}
-          />
-          <Confirm
-            open={open}
-            header="컨테이너 생성"
-            content="컨테이너를 생성하시겠습니까?"
-            cancelButton="취소"
-            confirmButton="생성"
-            onCancel={this.handleCancel}
-            onConfirm={this.handleConfirm}
           />
         </div>
       </div>

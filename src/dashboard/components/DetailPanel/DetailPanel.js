@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./DetailPanel.css";
-import { Button, Label, Card, Dimmer, Loader } from "semantic-ui-react";
+import { Button, Label, Card, Dimmer, Loader, Confirm } from "semantic-ui-react";
 import img from "./images/create_container.svg";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -10,7 +10,9 @@ class DetailPanel extends Component {
     container: null,
     loadOfDatas: false,
     userId: window.localStorage.getItem("user_id"),
-    port: null
+    port: null,
+    open: false,
+    del_trgt: null,
   };
   
   // DOM 마운트 후
@@ -27,11 +29,8 @@ class DetailPanel extends Component {
 
   // state 변경사항 있을때 다시 그리기 여부
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.container !== this.state.container) {
+    if (nextState.container !== this.state.container || nextState.loadOfDatas !== this.state.loadOfDatas || nextState.open !== this.state.open) {
       // 삭제 후 다시 그리기
-      return true;
-    } else if (nextState.loadOfDatas !== this.state.loadOfDatas) {
-      // 로딩창 다시 그리기
       return true;
     } else {
       return false;
@@ -40,8 +39,8 @@ class DetailPanel extends Component {
 
   // 컨테이너 삭제
   handleDelete = async (e) => {
-    let data = this.state.container[e.target.value];
-    this.setState({ loadOfDatas: true });
+    let data = this.state.container[this.state.del_trgt];
+    this.setState({ loadOfDatas: true, open: false});
 
     // 컨테이너 정지 후 제거
     try {
@@ -55,8 +54,11 @@ class DetailPanel extends Component {
     }
   };
 
+  handleCancel = () => this.setState({open: false, loadOfDatas: false });
+  show = (e) => { console.log(e.target.value); this.setState({ open: true, del_trgt : e.target.value}); } 
+
   render() {
-    var containerList = []; 
+    var containerList = [];
     
     if(this.state.container !== null) {
       containerList = this.state.container.map((item, i) => (
@@ -91,8 +93,17 @@ class DetailPanel extends Component {
                 className="delete-button"
                 content="삭제"
                 size="mini"
-                value="0"
-                onClick={this.handleDelete}
+                value={i}
+                onClick={this.show}
+              />
+              <Confirm
+                open={this.state.open}
+                header="컨테이너 삭제"
+                content="컨테이너를 삭제하시겠습니까?"
+                cancelButton="취소"
+                confirmButton="삭제"
+                onCancel={this.handleCancel}
+                onConfirm={this.handleDelete}
               />
             </Card>
           </div>
