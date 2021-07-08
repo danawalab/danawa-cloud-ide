@@ -222,7 +222,9 @@ class MasterPanel extends Component {
       this.state,
       con_key
     );
-    this.setState({ port: con_key });
+    setTimeout(function () {
+      this.setState({ port: con_key });
+    }.bind(this), 8000)
   };
 
   // 메인화면 이동
