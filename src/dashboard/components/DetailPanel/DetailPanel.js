@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./DetailPanel.css";
-import { Button, Label, Card, Dimmer, Loader, Confirm } from "semantic-ui-react";
+import { Button, Label, Card, Dimmer, Loader, Confirm, Icon } from "semantic-ui-react";
 import img from "./images/create_container.svg";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +8,7 @@ import axios from "axios";
 class DetailPanel extends Component {
   state = {
     container: null,
+    container_status: null,
     loadOfDatas: false,
     userId: window.localStorage.getItem("user_id"),
     port: null,
@@ -24,7 +25,16 @@ class DetailPanel extends Component {
   _getContainer = async () => {
     const res = await axios.post("/api/search", {userId : window.localStorage.getItem("user_id")});
     console.log(res);
-    this.setState({ container: res.data.container, loadOfDatas: false});
+    var arr = [];
+
+    for (let element of res.data.container) {
+      let info = await axios.get("/containers/" + element.container_id + "/json");
+      arr.push(info.data.State.Running);
+    }
+
+    console.log(arr);
+
+    this.setState({ container: res.data.container, container_status : arr, loadOfDatas: false});
   };
 
   // state 변경사항 있을때 다시 그리기 여부
@@ -54,6 +64,48 @@ class DetailPanel extends Component {
     }
   };
 
+  // 컨테이너 정지
+  stopContainer = async (e) => {
+    let data = this.state.container[e.target.value];
+    
+    this.setState({ loadOfDatas: true});
+    
+    try {
+      await axios.post("/containers/" + data.container_id + "/stop");
+    } catch(e){
+      console.log(e);
+    } finally {
+      await this._getContainer();
+    }
+  }
+
+  // 컨테이너 실행
+  startContainer = async(e) => {
+    let item = this.state.container[e.target.value];
+
+    try {
+      // 컨테이너 상태 점검
+      let info = await axios.get("/containers/" + item.container_id + "/json");
+
+      if(info !== undefined){
+        if(info.data.State.Running === false){
+          this.setState({ loadOfDatas: true});
+          await axios.post("/containers/" + item.container_id + "/start");
+        
+          setTimeout(function () {
+            this._getContainer();
+            window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/works/" +   (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master") + item.tmlt_dtl === 'non' ? "/clone_space" : "", "_blank")
+          }.bind(this), 8000)
+        } else {
+          window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/works/" + (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master") + item.tmlt_dtl === 'non' ? "/clone_space" : "", "_blank")
+        }
+      } 
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+
   handleCancel = () => this.setState({open: false, loadOfDatas: false });
   show = (e) => { console.log(e.target.value); this.setState({ open: true, del_trgt : e.target.value}); } 
 
@@ -61,7 +113,7 @@ class DetailPanel extends Component {
     var containerList = [];
     
     if(this.state.container !== null) {
-      containerList = this.state.container.map((item, i) => (
+      containerList = this.state.container.map((item, i) => ( 
         <div
             className="inner-content"
             key={i}
@@ -74,19 +126,21 @@ class DetailPanel extends Component {
               />
               <Card.Content extra>
                 <Label className="container-text-lang" color="teal">
-                  Language
+                  언어
                   <Label.Detail>{item.stack_cd}</Label.Detail>
                 </Label>
-                <Label className="container-text-zone" color="yellow">
-                  Region
-                  <Label.Detail>대한민국</Label.Detail>
+                <Label className="container-text-zone" color="violet">
+                  상태
+                  <Label.Detail>{this.state.container_status[i] === true ? "Running" : "Stop"}</Label.Detail>
                 </Label>
                 <Button
                   className="content-button"
                   content="▶ 터미널 실행"
                   color="black"
-                  onClick={() => window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/works/" + (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master"), "_blank")}
+                  value={i}
+                  onClick={this.startContainer}
                 ></Button>
+                <Button icon className="content-button-stop" color="grey" value={i} onClick={this.stopContainer}>정지</Button>
               </Card.Content>
               <Button
                 color="blue"

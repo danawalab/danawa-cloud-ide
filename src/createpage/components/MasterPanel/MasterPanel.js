@@ -178,8 +178,8 @@ class MasterPanel extends Component {
 
     if (tg.name === "name" && tg.value.length > 20) {
       formError.valid_name = "컨테이너 이름은 20자로 제한됩니다.";
-    } else if (tg.name === "name" && /[^a-zA-Z0-9]/.test(tg.value) === true) {
-      formError.valid_name = "컨테이너 이름은 영어 혹은 숫자만 허용됩니다.";
+    } else if (tg.name === "name" && /[^a-zA-Z0-9-_-]/.test(tg.value) === true) {
+      formError.valid_name = "컨테이너 이름은 영어 혹은 숫자, 하이픈(-)만 허용됩니다.";
     } else if (tg.name === "content" && tg.value.length > 100) {
       formError.valid_content = "컨테이너 내용은 100자로 제한됩니다.";
     } else {
@@ -336,7 +336,7 @@ class MasterPanel extends Component {
                 <Input
                   id="name"
                   name="name"
-                  placeholder="영어 혹은 숫자만 허용됩니다. (0/20)"
+                  placeholder="영어 혹은 숫자, 하이픈(-_)만 허용됩니다. (0/20)"
                   onChange={this.handleInputData}
                 />
                 <Message

@@ -31,7 +31,16 @@
 
 .content-button {
   left: 23px;
-  width: 250px;
+  width: 200px;
+  bottom: 30px;
+  font-weight: bold;
+  position: absolute;
+  color: black;
+}
+
+.content-button-stop {
+  left: 200px;
+  width: 70px;
   bottom: 30px;
   font-weight: bold;
   position: absolute;
