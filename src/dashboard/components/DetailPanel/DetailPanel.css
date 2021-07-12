@@ -18,6 +18,18 @@
 .content {
   float: left;
   position: relative;
+  margin-top: 10px;
+}
+
+.card_grid {
+  float: left;
+  position: relative;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+.container-header {
+  margin-bottom: 3%;
 }
 
 .content-text {
@@ -56,6 +68,7 @@ img:hover, .container:hover {
   transition: 0.2s;
 }
 
+
 .container-1 {
   margin-top: 10px;
   margin-left:10px;
@@ -67,13 +80,20 @@ img:hover, .container:hover {
   height: 300px;
   width: 300px;
   float: left;
-  background-color: snow;
 }
 
 .container-text-name {
   left: 30px;
   width: 200px;
   bottom: 200px;
+  font-weight: bold;
+  position: absolute;
+}
+
+.container-text-date {
+  left: 20px;
+  width: 200px;
+  bottom: 100px;
   font-weight: bold;
   position: absolute;
 }

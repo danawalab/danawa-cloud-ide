@@ -17,7 +17,7 @@ class Header extends Component {
         return (
             <div>
                 <div className="Header">
-                    OJT_IDE.
+                    DANAWA CLOUD IDE
                     <Button color="black" style={{float:"right"}} onClick={this.clickHandle}>
                         LOGOUT
                     </Button>

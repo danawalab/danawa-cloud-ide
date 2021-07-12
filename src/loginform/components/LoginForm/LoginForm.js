@@ -81,7 +81,7 @@ class LoginForm extends Component {
         >
           <Grid.Column style={{ maxWidth: 450 }}>
             <Header as="h2" color="black" textAlign="center">
-              <Icon name="cloud" /> OJT_IDE.
+              <Icon name="cloud" /> DANAWA CLOUD IDE
             </Header>
             <Form size="large">
               <Segment stacked>

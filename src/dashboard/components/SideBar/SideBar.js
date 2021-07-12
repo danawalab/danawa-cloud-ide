@@ -8,7 +8,7 @@ class SideBar extends Component {
     render() {
         return (
             <div className="SideBar">
-                <h4>사용자</h4>
+                <h4>User</h4>
                 <h3>{window.localStorage.getItem("user_id")}</h3>
             </div>
         );

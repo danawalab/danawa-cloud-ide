@@ -7,10 +7,12 @@ import {
   Input,
   Segment,
   Button,
-  Confirm,
   Message,
   Dimmer,
   Loader,
+  Modal,
+  Header,
+  Icon,
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import java_icon from "./images/java_logo.svg";
@@ -131,12 +133,25 @@ function insertTable(id, state, port) {
   });
 }
 
+// 컨테이너명 중복 검색
+async function duplechk(state) {
+  const res = axios({
+    method: "post",
+    url: "/api/selectDuple",
+    data: {
+      user_id: window.localStorage.getItem("user_id"),
+      container_nm: state.input_data.name,
+    },
+  });
+
+  return res;
+}
+
 class MasterPanel extends Component {
   state = {
     group1: "kor",
     group3: "non",
     imageClicked: "java",
-    open: false,
     loadOfDatas: false,
     result: "",
     pkg_1: "no",
@@ -145,6 +160,8 @@ class MasterPanel extends Component {
       name: "",
       content: "",
     },
+    isError: false,
+    valid_name_duple: false,
     error_msg: {
       valid_name: "",
       valid_content: "",
@@ -178,8 +195,12 @@ class MasterPanel extends Component {
 
     if (tg.name === "name" && tg.value.length > 20) {
       formError.valid_name = "컨테이너 이름은 20자로 제한됩니다.";
-    } else if (tg.name === "name" && /[^a-zA-Z0-9-_-]/.test(tg.value) === true) {
-      formError.valid_name = "컨테이너 이름은 영어 혹은 숫자, 하이픈(-)만 허용됩니다.";
+    } else if (
+      tg.name === "name" &&
+      /[^a-zA-Z0-9-_-]/.test(tg.value) === true
+    ) {
+      formError.valid_name =
+        "컨테이너 이름은 영어 혹은 숫자, 하이픈(-)만 허용됩니다.";
     } else if (tg.name === "content" && tg.value.length > 100) {
       formError.valid_content = "컨테이너 내용은 100자로 제한됩니다.";
     } else {
@@ -204,27 +225,51 @@ class MasterPanel extends Component {
   handleConfirm = async () => {
     this.setState({
       result: "yes",
-      open: false,
       loadOfDatas: true,
-      user_id: this.props.userId.userId,
+      user_id: window.localStorage.getItem("user_id"),
     });
 
     let con_key = Math.random().toString(36).substr(2, 11);
 
-    insertTable(
-      await createContainer(
-        window.localStorage.getItem("user_id"),
-        con_key,
-        this.state.imageClicked,
-        this.state.git.repo,
-        this.state.pkg_1
-      ),
-      this.state,
-      con_key
-    );
-    setTimeout(function () {
-      this.setState({ port: con_key });
-    }.bind(this), 8000)
+    if (
+      this.state.error_msg.valid_content === "" &&
+      this.state.error_msg.valid_name === "" &&
+      this.state.input_data.name !== ""
+    ) {
+      var chk = await duplechk(this.state);
+      if (chk.data.count === 0) {
+        insertTable(
+          await createContainer(
+            window.localStorage.getItem("user_id"),
+            con_key,
+            this.state.imageClicked,
+            this.state.git.repo,
+            this.state.pkg_1
+          ),
+          this.state,
+          con_key
+        );
+        setTimeout(
+          function () {
+            this.setState({ port: con_key });
+          }.bind(this),
+          8000
+        );
+      } else {
+        this.setState({
+          result: "no",
+          loadOfDatas: false,
+          isError: true,
+          valid_name_duple: true
+        });
+      }
+    } else {
+      this.setState({
+        result: "no",
+        loadOfDatas: false,
+        isError: true,
+      });
+    }
   };
 
   // 메인화면 이동
@@ -266,11 +311,12 @@ class MasterPanel extends Component {
     });
   };
 
-  handleCancel = () => this.setState({ result: "no", open: false });
-  show = () => this.setState({ open: true });
+  // 에러 메시지 확인
+  handleError = () => {
+    this.setState({ isError: false, valid_name_duple: false });
+  };
 
   render() {
-    const { open } = this.state;
     return (
       <div>
         <Dimmer className="loadingBar" active={this.state.loadOfDatas}>
@@ -314,16 +360,7 @@ class MasterPanel extends Component {
             color="blue"
             content="컨테이너 생성"
             size="large"
-            onClick={this.show}
-          />
-          <Confirm
-            open={open}
-            header="컨테이너 생성"
-            content="컨테이너를 생성하시겠습니까?"
-            cancelButton="취소"
-            confirmButton="생성"
-            onCancel={this.handleCancel}
-            onConfirm={this.handleConfirm}
+            onClick={this.handleConfirm}
           />
         </div>
 
@@ -469,13 +506,38 @@ class MasterPanel extends Component {
             </Form>
           </Segment>
           <Button
-            // className="navigate-bottom-button"
-            style={{float:"right"}}
+            style={{ float: "right" }}
             color="blue"
             content="컨테이너 생성"
             size="large"
-            onClick={this.show}
+            onClick={this.handleConfirm}
           />
+          <Modal basic open={this.state.isError} size="small">
+            <Header icon>
+              <Icon name="warning circle" />
+              Error Messages
+            </Header>
+            <Modal.Content>
+              <p>컨테이너 생성중 오류가 발생했습니다.</p>
+              <p>{this.state.error_msg.valid_name}</p>
+              <p>{this.state.error_msg.valid_content}</p>
+              {this.state.input_data.name === "" ? (
+                <p>컨테이너 이름이 공백입니다.</p>
+              ) : (
+                <p></p>
+              )}
+              {this.state.valid_name_duple === true ? (
+                <p>중복된 컨테이너 이름이 존재합니다.</p>
+              ) : (
+                <p></p>
+              )}
+            </Modal.Content>
+            <Modal.Actions>
+              <Button inverted onClick={this.handleError}>
+                확인
+              </Button>
+            </Modal.Actions>
+          </Modal>
         </div>
       </div>
     );

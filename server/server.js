@@ -14,10 +14,25 @@ app.post("/api/search", (req, res) => {
   const user_id = req.body.userId;
   console.log(user_id);
   db.query(
-    "SELECT * FROM USER_INFO UI INNER JOIN CONTAINER_INFO CI ON UI.USER_ID = CI.USER_ID WHERE UI.USER_ID = (?)",
+    "SELECT * FROM USER_INFO UI INNER JOIN CONTAINER_INFO CI ON UI.USER_ID = CI.USER_ID WHERE UI.USER_ID = (?) ORDER BY CI.INSERT_DTS DESC",
     [user_id],
     (err, data) => {
       if (!err) res.send({ container: data });
+      else res.send(err);
+    }
+  );
+});
+
+// 중복 컨테이너 조회
+app.post("/api/selectDuple", (req, res) => {
+  const user_id = req.body.user_id;
+  const container_nm = req.body.container_nm;
+  db.query(
+    "SELECT COUNT(*) CNT FROM USER_INFO UI INNER JOIN CONTAINER_INFO CI ON UI.USER_ID = CI.USER_ID WHERE UI.USER_ID = (?) AND CI.CONTAINER_NM = (?)",
+    [user_id, container_nm],
+    (err, data) => {
+      console.log(data[0].CNT);
+      if (!err) res.send({ count: data[0].CNT });
       else res.send(err);
     }
   );
