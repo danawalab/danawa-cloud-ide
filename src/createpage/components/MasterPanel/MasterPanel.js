@@ -29,7 +29,7 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
       data: {
         Hostname: "test",
         Env: [
-          "GIT_REP=" +
+          "GIT_REP=git clone " +
             (rep !== ""
               ? rep
               : (pickImage === "java" ? 
