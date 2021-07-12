@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "java.configuration.checkProjectSettingsExclusions": false,
+    "java.semanticHighlighting.enabled": false,
+    "java.home": "/usr/local/openjdk-11"
+}
