@@ -39,11 +39,7 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
           "MYSQL=" +
             (useMysql === "no"
               ? ""
-              : "git clone https://github.com/mysqljs/mysql.git" +
-                " /home/danawa/works/" +
-                (pickImage === "java"
-                  ? "spring-boot-helloworld-master/mysql"
-                  : "node-js-sample-master/mysql")),
+              : "git clone https://github.com/mysqljs/mysql.git"
         ],
         Image:
           pickImage === "java"
