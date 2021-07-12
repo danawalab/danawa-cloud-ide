@@ -40,6 +40,7 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
             (useMysql === "no"
               ? ""
               : "git clone https://github.com/mysqljs/mysql.git"
+            ),
         ],
         Image:
           pickImage === "java"
