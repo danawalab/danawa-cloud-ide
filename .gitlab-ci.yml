@@ -40,10 +40,11 @@ build:
   - cd ..
   - cd dockerfiles/java-spring
   - docker build -t dcr.danawa.io/java_spring_vscode:latest .
+  - docker push dcr.danawa.io/java_spring_vscode:latest
   - cd ..
   - cd node
   - docker build -t dcr.danawa.io/nodejs_vscode:latest .
-  
+  - docker push dcr.danawa.io/nodejs_vscode:latest
 deploy:
   stage: deploy
   when: manual
