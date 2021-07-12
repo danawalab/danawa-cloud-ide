@@ -15,9 +15,7 @@ ENV PATH="/root/.nvm/versions/node/v12.0.0/bin/:${PATH}"
 # nodejs
 RUN mkdir -p /home/danawa/works
 WORKDIR /home/danawa/works
-RUN wget https://github.com/heroku/node-js-sample/archive/refs/heads/master.zip
-RUN unzip master.zip
-RUN rm master.zip
+RUN git clone ${GIT_REP}
 
 # code-server
 WORKDIR /home/danawa/.code-server
@@ -27,4 +25,4 @@ RUN tar xzf code-server2.1638-vsc1.39.2-linux-x86_64.tar.gz -C ./ --strip-compon
 WORKDIR /home/danawa
 
 # -p 10000 => 지정할 컨테이너 번호 
-CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --auth none --port 3333"]
+CMD ["sh", "-c", "${MYSQL} && /home/danawa/.code-server/code-server --auth none --port 3333"]

@@ -31,13 +31,11 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
         Env: [
           "GIT_REP=" +
             (rep !== ""
-              ? "git clone " +
-                rep +
-                " /home/danawa/works/" +
-                (pickImage === "java"
-                  ? "spring-boot-helloworld-master/clone_space"
-                  : "node-js-sample-master/clone_space")
-              : ""),
+              ? rep
+              : (pickImage === "java" ? 
+                  "https://github.com/banhart123/spring-boot-helloworld.git" : 
+                  "https://github.com/heroku/node-js-sample.git")
+                ),
           "MYSQL=" +
             (useMysql === "no"
               ? ""
@@ -125,7 +123,7 @@ function insertTable(id, state, port) {
       container_nm: state.input_data.name,
       note_txt: state.input_data.content,
       tmpl_cd: state.group2,
-      tmpl_dtl: state.group3,
+      tmpl_dtl: state.group3 === "non" ? state.group3  : state.git.repo.split("/")[4].replace(".git", "").trim(),
       stack_cd: state.imageClicked,
       pkg_1: state.pkg_1,
       port: port,
