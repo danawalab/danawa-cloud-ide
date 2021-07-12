@@ -85,10 +85,10 @@ class DetailPanel extends Component {
         
           setTimeout(function () {
             this._getContainer();
-            window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/works/" + (item.tmlt_dtl !== 'non' ? "/" + item.tmlt_dtl : (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master")), "_blank");
+            window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/" + (item.tmlt_dtl !== 'non' ? item.tmlt_dtl : (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master")), "_blank");
           }.bind(this), 8000)
         } else {
-          window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/works/" + (item.tmlt_dtl !== 'non' ? "/" + item.tmlt_dtl : (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master")), "_blank");
+          window.open("http://es2.danawa.io:3333/" + window.localStorage.getItem("user_id") + "/" + item.port +"/?folder=/home/danawa/" + (item.tmlt_dtl !== 'non' ? item.tmlt_dtl : (item.stack_cd === "java" ? "spring-boot-helloworld-master" : "node-js-sample-master")), "_blank");
         }
       } 
     } catch (e) {
