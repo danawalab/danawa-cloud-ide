@@ -22,10 +22,11 @@ RUN rm gradle-5.4.1-bin.zip
 
 # code-server
 WORKDIR /home/danawa/.code-server
-RUN wget https://github.com/cdr/code-server/releases/download/2.1638-vsc1.39.2/code-server2.1638-vsc1.39.2-linux-x86_64.tar.gz
-RUN tar xzf code-server2.1638-vsc1.39.2-linux-x86_64.tar.gz -C ./ --strip-components 1
+RUN wget https://github.com/cdr/code-server/releases/download/3.2.0/code-server-3.2.0-linux-x86_64.tar.gz
+RUN tar xzf code-server-3.2.0-linux-x86_64.tar.gz -C ./ --strip-components 1
+
+ADD ./myapp /root/.local/share/code-server/User
 
 WORKDIR /home/danawa
 
-# -p 10000 => 지정할 컨테이너 번호 
-CMD ["sh", "-c", "${MYSQL} && /home/danawa/.code-server/code-server --auth none --port 3333"]
+CMD ["sh", "-c", "${MYSQL} && /home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
