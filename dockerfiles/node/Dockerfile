@@ -15,7 +15,6 @@ ENV PATH="/root/.nvm/versions/node/v12.0.0/bin/:${PATH}"
 # nodejs
 RUN mkdir -p /home/danawa/works
 WORKDIR /home/danawa/works
-RUN ${GIT_REP}
 
 # code-server
 WORKDIR /home/danawa/.code-server
@@ -24,4 +23,4 @@ RUN tar -xvzf code-server-3.2.0-linux-x86_64.tar.gz -C ./ --strip-components 1
 
 WORKDIR /home/danawa
 
-CMD ["sh", "-c", "${MYSQL} && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
+CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]

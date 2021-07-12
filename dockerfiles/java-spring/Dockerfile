@@ -15,9 +15,6 @@ RUN apt-get install -y emacs
 RUN wget https://downloads.gradle.org/distributions/gradle-5.4.1-bin.zip
 RUN unzip gradle-5.4.1-bin.zip
 ENV PATH="/works/gradle-5.4.1/bin:${PATH}"
-
-# java
-RUN ${GIT_REP}
 RUN rm gradle-5.4.1-bin.zip
 
 # code-server
@@ -29,4 +26,4 @@ ADD ./myapp /root/.local/share/code-server/User
 
 WORKDIR /home/danawa
 
-CMD ["sh", "-c", "${MYSQL} && /home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
+CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
