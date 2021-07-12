@@ -229,7 +229,8 @@ class MasterPanel extends Component {
     if (
       this.state.error_msg.valid_content === "" &&
       this.state.error_msg.valid_name === "" &&
-      this.state.input_data.name !== ""
+      this.state.input_data.name !== "" &&
+      (this.state.group3 === "non" || (this.state.group3 !== "non" && this.state.git.repo !== ""))
     ) {
       var chk = await duplechk(this.state);
       if (chk.data.count === 0) {
@@ -523,6 +524,11 @@ class MasterPanel extends Component {
               )}
               {this.state.valid_name_duple === true ? (
                 <p>중복된 컨테이너 이름이 존재합니다.</p>
+              ) : (
+                <p></p>
+              )}
+              {this.state.git.repo === "" ? (
+                <p>깃 리포지토리 값이 없습니다.</p>
               ) : (
                 <p></p>
               )}
