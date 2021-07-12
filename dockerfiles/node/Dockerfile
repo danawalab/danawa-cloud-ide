@@ -15,7 +15,7 @@ ENV PATH="/root/.nvm/versions/node/v12.0.0/bin/:${PATH}"
 # nodejs
 RUN mkdir -p /home/danawa/works
 WORKDIR /home/danawa/works
-RUN git clone ${GIT_REP}
+RUN ${GIT_REP}
 
 # code-server
 WORKDIR /home/danawa/.code-server

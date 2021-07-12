@@ -17,10 +17,8 @@ RUN unzip gradle-5.4.1-bin.zip
 ENV PATH="/works/gradle-5.4.1/bin:${PATH}"
 
 # java
-RUN wget https://github.com/danawalab/spring-boot-helloworld/archive/refs/heads/master.zip
-RUN unzip master.zip
+RUN ${GIT_REP}
 RUN rm gradle-5.4.1-bin.zip
-RUN rm master.zip
 
 # code-server
 WORKDIR /home/danawa/.code-server
@@ -30,4 +28,4 @@ RUN tar xzf code-server2.1638-vsc1.39.2-linux-x86_64.tar.gz -C ./ --strip-compon
 WORKDIR /home/danawa
 
 # -p 10000 => 지정할 컨테이너 번호 
-CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --auth none --port 3333"]
+CMD ["sh", "-c", "${MYSQL} && /home/danawa/.code-server/code-server --auth none --port 3333"]
