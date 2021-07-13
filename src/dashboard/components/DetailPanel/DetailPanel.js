@@ -57,7 +57,7 @@ class DetailPanel extends Component {
     try {
       await axios({
         method:"post",
-        url: "/containers/" + item.container_id + "/exec",
+        url: "/containers/" + data.container_id + "/exec",
         data: {
           Env: [
             "GIT_REP=",
