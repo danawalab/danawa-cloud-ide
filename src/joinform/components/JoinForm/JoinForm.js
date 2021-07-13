@@ -30,6 +30,7 @@ class JoinForm extends React.Component {
     user_pwd: "",
     join_failMsg: "",
     join_accept: false,
+    user_pwd_double: ""
   };
 
   handleId = (e) => {
@@ -46,13 +47,39 @@ class JoinForm extends React.Component {
     });
   };
 
+  handlePwdDouble = (e) => {
+    this.setState({
+      user_pwd_double: e.target.value,
+      join_failMsg: "",
+    });
+  };
+
   handleJoin = async (e) => {
-    var msg = await insertUserInfo(this.state);
-    if (msg.data.errno === undefined || msg.status !== 200) {
-      console.log("회원가입 성공");
-      this.setState({ join_accept: true });
-    } else {
-      this.setState({ join_failMsg: msg.data.code });
+    var flag = true;
+    
+    if(this.state.user_id === ""){
+      this.setState({ join_failMsg: "아이디가 공백입니다." });
+      flag = false
+    } 
+    
+    if(this.state.user_pwd === "") {
+      this.setState({ join_failMsg: "패스워드가 공백입니다." });
+      flag = false
+    } 
+    
+    if(this.state.user_pwd !== this.state.user_pwd_double) {
+      this.setState({ join_failMsg: "패스워드와 패스워드 확인이 일치하지 않습니다." });
+      flag = false
+    } 
+    
+    if(flag === true){
+      var msg = await insertUserInfo(this.state);
+      if (msg.data.errno === undefined || msg.status !== 200) {
+        console.log("회원가입 성공");
+        this.setState({ join_accept: true });
+      } else {
+        this.setState({ join_failMsg: msg.data.code });
+      }
     }
   };
 
@@ -87,17 +114,31 @@ class JoinForm extends React.Component {
               <Form>
                 <Form.Field>
                   <label>아이디</label>
-                  <input
+                  <Form.Field
+                    control="input"
                     onChange={this.handleId}
                     placeholder="알파벳으로 입력하시기 바랍니다."
+                    error={this.state.join_failMsg.includes("아이디")}
                   />
                 </Form.Field>
                 <Form.Field>
                   <label>패스워드</label>
-                  <input
+                  <Form.Field
+                    control="input"
                     onChange={this.handlePwd}
                     type="password"
                     placeholder="패스워드"
+                    error={this.state.join_failMsg.includes("패스워드")}
+                  />
+                </Form.Field>
+                <Form.Field>
+                  <label>패스워드 확인</label>
+                  <Form.Field
+                    control="input"
+                    onChange={this.handlePwdDouble}
+                    type="password"
+                    placeholder="패스워드"
+                    error={this.state.join_failMsg.includes("패스워드")}
                   />
                 </Form.Field>
                 <Link to={{ pathname: "/" }}>
@@ -120,7 +161,7 @@ class JoinForm extends React.Component {
             >
               <Message.Header>회원가입 실패</Message.Header>
               <div>
-                가입 계정을 확인해주세요 <div>{this.state.join_failMsg}</div>
+                <div>{this.state.join_failMsg}</div>
               </div>
             </Message>
           </Grid.Column>

@@ -9,10 +9,7 @@ import {
   Button,
   Message,
   Dimmer,
-  Loader,
-  Modal,
-  Header,
-  Icon,
+  Loader
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import java_icon from "./images/java_logo.svg";
@@ -32,15 +29,13 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
           "GIT_REP=git clone " +
             (rep !== ""
               ? rep
-              : (pickImage === "java" ? 
-                  "https://github.com/banhart123/spring-boot-helloworld.git" : 
-                  "https://github.com/heroku/node-js-sample.git")
-                ),
+              : pickImage === "java"
+              ? "https://github.com/banhart123/spring-boot-helloworld.git"
+              : "https://github.com/heroku/node-js-sample.git"),
           "MYSQL=" +
             (useMysql === "no"
               ? ""
-              : "git clone https://github.com/mysqljs/mysql.git"
-            ),
+              : "git clone https://github.com/mysqljs/mysql.git"),
         ],
         Image:
           pickImage === "java"
@@ -120,7 +115,10 @@ function insertTable(id, state, port) {
       container_nm: state.input_data.name,
       note_txt: state.input_data.content,
       tmpl_cd: state.group2,
-      tmpl_dtl: state.group3 === "non" ? state.group3  : state.git.repo.split("/")[4].replace(".git", "").trim(),
+      tmpl_dtl:
+        state.group3 === "non"
+          ? state.group3
+          : state.git.repo.split("/")[4].replace(".git", "").trim(),
       stack_cd: state.imageClicked,
       pkg_1: state.pkg_1,
       port: port,
@@ -155,7 +153,6 @@ class MasterPanel extends Component {
       name: "",
       content: "",
     },
-    isError: false,
     valid_name_duple: false,
     error_msg: {
       valid_name: "",
@@ -184,6 +181,7 @@ class MasterPanel extends Component {
 
   // 밸리데이션 체크 & 입력
   handleInputData = (e) => {
+    console.log(this.state);
     let tg = e.target;
     let formError = this.state.error_msg;
     let formInput = this.state.input_data;
@@ -226,45 +224,69 @@ class MasterPanel extends Component {
 
     let con_key = Math.random().toString(36).substr(2, 11);
 
+    var chk = await duplechk(this.state);
+
+    if (chk.data.count > 0) {
+      this.setState({
+        result: "no",
+        loadOfDatas: false,
+        valid_name_duple: true,
+        error_msg: {
+          valid_name:
+            "중복된 컨테이너 이름이 존재합니다.",
+          valid_content: this.state.error_msg.valid_content,
+        },
+      });
+    }
+
     if (
+      chk.data.count === 0 &&
       this.state.error_msg.valid_content === "" &&
       this.state.error_msg.valid_name === "" &&
       this.state.input_data.name !== "" &&
-      (this.state.group3 === "non" || (this.state.group3 !== "non" && this.state.git.repo !== ""))
+      (this.state.group3 === "non" ||
+        (this.state.group3 !== "non" && this.state.git.repo !== "" && this.state.git.repo !== undefined))
     ) {
-      var chk = await duplechk(this.state);
-      if (chk.data.count === 0) {
-        insertTable(
-          await createContainer(
-            window.localStorage.getItem("user_id"),
-            con_key,
-            this.state.imageClicked,
-            this.state.git.repo,
-            this.state.pkg_1
-          ),
-          this.state,
-          con_key
-        );
-        setTimeout(
-          function () {
-            this.setState({ port: con_key });
-          }.bind(this),
-          8000
-        );
-      } else {
-        this.setState({
-          result: "no",
-          loadOfDatas: false,
-          isError: true,
-          valid_name_duple: true
-        });
-      }
+      insertTable(
+        await createContainer(
+          window.localStorage.getItem("user_id"),
+          con_key,
+          this.state.imageClicked,
+          this.state.git.repo,
+          this.state.pkg_1
+        ),
+        this.state,
+        con_key
+      );
+      setTimeout(
+        function () {
+          this.setState({ port: con_key });
+        }.bind(this),
+        8000
+      );
     } else {
       this.setState({
         result: "no",
         loadOfDatas: false,
-        isError: true,
       });
+
+      if (this.state.input_data.name === "") {
+        this.setState({
+          error_msg: {
+            valid_name: "컨테이너 이름이 공백입니다.",
+            valid_content: this.state.error_msg.valid_content,
+          },
+        });
+      }
+
+      if (this.state.group3 !== "non" && this.state.git.repo === "") {
+        this.setState({
+          git: {
+            repo: "",
+            repo_msg: "깃 리포지토리를 입력해주세요.",
+          },
+        });
+      }
     }
   };
 
@@ -294,6 +316,7 @@ class MasterPanel extends Component {
     this.setState({
       git: {
         repo: e.target.value,
+        repo_msg: "",
       },
     });
   };
@@ -305,11 +328,6 @@ class MasterPanel extends Component {
     history.push({
       pathname: "/",
     });
-  };
-
-  // 에러 메시지 확인
-  handleError = () => {
-    this.setState({ isError: false, valid_name_duple: false });
   };
 
   render() {
@@ -364,23 +382,28 @@ class MasterPanel extends Component {
         <div className="inner-content">
           <Segment>
             <Form size="large">
-              <Form.Field inline>
+              <Form.Field>
                 <label htmlFor="name">컨테이너 이름</label>
-                <Input
+                <Form.Field
+                  control="input"
                   id="name"
                   name="name"
                   placeholder="영어 혹은 숫자, 하이픈(-_)만 허용됩니다. (0/20)"
                   onChange={this.handleInputData}
+                  error ={ this.state.error_msg.valid_name !== ""
+                  ?  true 
+                  :  false 
+                  }
                 />
                 <Message
-                  warning
+                  error
                   style={
                     this.state.error_msg.valid_name !== ""
                       ? { display: "block" }
                       : { display: "none" }
                   }
                 >
-                  <Message.Header>경고</Message.Header>
+                  <Message.Header>Warnning</Message.Header>
                   <p>{this.state.error_msg.valid_name}</p>
                 </Message>
               </Form.Field>
@@ -395,16 +418,20 @@ class MasterPanel extends Component {
                 label="컨테이너 설명"
                 placeholder="컨테이너 설명을 입력해주세요. 0/100"
                 onChange={this.handleInputData}
+                error ={ this.state.error_msg.valid_content !== ""
+                  ?  true 
+                  :  false 
+                  }
               />
               <Message
-                warning
+                error
                 style={
                   this.state.error_msg.valid_content !== ""
                     ? { display: "block" }
                     : { display: "none" }
                 }
               >
-                <Message.Header>경고</Message.Header>
+                <Message.Header>Warnning</Message.Header>
                 <p>{this.state.error_msg.valid_content}</p>
               </Message>
             </Form>
@@ -428,7 +455,8 @@ class MasterPanel extends Component {
                   checked={this.state.group3 === "git"}
                   onChange={this.handleChange}
                 />
-                <Input
+                <Form.Field
+                 control="input"
                   style={
                     this.state.group3 === "non"
                       ? { display: "none" }
@@ -438,7 +466,26 @@ class MasterPanel extends Component {
                   name="name"
                   placeholder="Git repository (ex. https://github.com/banhart123/dnw-ojt-ide.git)"
                   onChange={this.inputGitRep}
+                  error ={ this.state.group3 !== "non" && this.state.git.repo_msg !== "" 
+                  ?  true 
+                  :  false 
+                  }
                 />
+                <div>
+                  <Message
+                    error
+                    style={
+                      this.state.group3 !== "non" &&
+                      this.state.git.repo_msg !== ""
+                        ? { display: "block", marginLeft: "20px" }
+                        : { display: "none" }
+                    }
+                  >
+                    <Message.Header>Warnning</Message.Header>
+                    <p>{this.state.git.repo_msg}</p>
+                  </Message>
+                </div>
+
                 {/* <Button size="large" style={{marginLeft: "5px"}} onClick={this.getCheckGitRep}>
                   <Icon name="check"/> 체크
                 </Button> */}
@@ -508,37 +555,6 @@ class MasterPanel extends Component {
             size="large"
             onClick={this.handleConfirm}
           />
-          <Modal basic open={this.state.isError} size="small">
-            <Header icon>
-              <Icon name="warning circle" />
-              Error Messages
-            </Header>
-            <Modal.Content>
-              <p>컨테이너 생성중 오류가 발생했습니다.</p>
-              <p>{this.state.error_msg.valid_name}</p>
-              <p>{this.state.error_msg.valid_content}</p>
-              {this.state.input_data.name === "" ? (
-                <p>컨테이너 이름이 공백입니다.</p>
-              ) : (
-                <p></p>
-              )}
-              {this.state.valid_name_duple === true ? (
-                <p>중복된 컨테이너 이름이 존재합니다.</p>
-              ) : (
-                <p></p>
-              )}
-              {this.state.git.repo === "" ? (
-                <p>깃 리포지토리 값이 없습니다.</p>
-              ) : (
-                <p></p>
-              )}
-            </Modal.Content>
-            <Modal.Actions>
-              <Button inverted onClick={this.handleError}>
-                확인
-              </Button>
-            </Modal.Actions>
-          </Modal>
         </div>
       </div>
     );
