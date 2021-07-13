@@ -81,7 +81,7 @@ class DetailPanel extends Component {
       if(info !== undefined){
         if(info.data.State.Running === false){
           this.setState({ loadOfDatas: true});
-          await axios.post("/containers/" + item.container_id + "/start");
+          await axios.post("/containers/" + item.container_id + "/restart");
         
           setTimeout(function () {
             this._getContainer();
