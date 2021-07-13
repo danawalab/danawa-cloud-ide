@@ -4,7 +4,6 @@ import DetailPanel from "../DetailPanel/DetailPanel.js";
 import { withRouter } from "react-router-dom";
 import {
   Form,
-  Input,
   Segment,
   Button,
   Message,
@@ -25,18 +24,6 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
       url: "/containers/create",
       data: {
         Hostname: "test",
-        Env: [
-          "GIT_REP=git clone " +
-            (rep !== ""
-              ? rep
-              : pickImage === "java"
-              ? "https://github.com/banhart123/spring-boot-helloworld.git"
-              : "https://github.com/heroku/node-js-sample.git"),
-          "MYSQL=" +
-            (useMysql === "no"
-              ? ""
-              : "git clone https://github.com/mysqljs/mysql.git"),
-        ],
         Image:
           pickImage === "java"
             ? "dcr.danawa.io/java_spring_vscode:latest" // 트래픽과 같은 포트 사용할것
@@ -79,6 +66,38 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
         method: "post",
         url: "/containers/" + c_id + "/start",
       });
+
+      var data = await axios({
+        method: "post",
+        url: "/containers/" + c_id + "/exec",
+        data : {
+          AttachStdin: false,
+          AttachStdout: true,
+          AttachStderr: true,
+          Tty: false,
+          Cmd: [
+            "sh", "-c", "git clone " +
+            (rep !== ""
+              ? rep
+              : pickImage === "java"
+              ? "https://github.com/banhart123/spring-boot-helloworld.git"
+              : "https://github.com/heroku/node-js-sample.git") +
+            (useMysql === "no"
+              ? ""
+              : "&& git clone https://github.com/mysqljs/mysql.git"),
+            ]
+        }
+      })
+
+      await axios({
+        method: "post",
+        url: "/exec/" + data.data.Id + "/start",
+        data : {
+            Detach: true,
+            Tty: false
+        }
+      });
+
     } else {
       console.log("컨테이너가 시작되지 않았습니다.");
     }

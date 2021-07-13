@@ -9,6 +9,18 @@ module.exports = function (app) {
         })
     );
     app.use(
+        createProxyMiddleware('/exec/*', {
+            target : 'http://localhost:2375',
+            changeOrigin: true
+        })
+    );
+    app.use(
+        createProxyMiddleware('/exec', {
+            target : 'http://localhost:2375',
+            changeOrigin: true
+        })
+    );
+    app.use(
         createProxyMiddleware('/api/*', {
             target : 'http://localhost:4000',
             changeOrigin: true,

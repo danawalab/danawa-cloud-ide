@@ -23,4 +23,4 @@ RUN tar -xvzf code-server-3.2.0-linux-x86_64.tar.gz -C ./ --strip-components 1
 
 WORKDIR /home/danawa
 
-CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
+CMD ["sh", "-c", "/home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]

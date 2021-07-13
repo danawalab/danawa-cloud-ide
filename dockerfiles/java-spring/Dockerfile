@@ -26,4 +26,4 @@ ADD ./myapp /root/.local/share/code-server/User
 
 WORKDIR /home/danawa
 
-CMD ["sh", "-c", "${GIT_REP} && ${MYSQL} && /home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
+CMD ["sh", "-c", "/home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
