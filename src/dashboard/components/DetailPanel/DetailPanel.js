@@ -55,6 +55,17 @@ class DetailPanel extends Component {
 
     // 컨테이너 정지 후 제거
     try {
+      await axios({
+        method:"post",
+        url: "/containers/" + item.container_id + "/exec",
+        data: {
+          Env: [
+            "GIT_REP=",
+            "MYSQL="
+          ]  
+        }
+      });
+
       await axios.post("/containers/" + data.container_id + "/stop");
       
       if(this.state.action === "delete"){
@@ -81,7 +92,8 @@ class DetailPanel extends Component {
       if(info !== undefined){
         if(info.data.State.Running === false){
           this.setState({ loadOfDatas: true});
-          await axios.post("/containers/" + item.container_id + "/restart");
+
+          await axios.post("/containers/" + item.container_id + "/start");
         
           setTimeout(function () {
             this._getContainer();
