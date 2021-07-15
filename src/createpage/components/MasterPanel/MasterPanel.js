@@ -8,7 +8,11 @@ import {
   Button,
   Message,
   Dimmer,
-  Loader
+  Loader,
+  Input,
+  List,
+  Transition,
+  Radio,
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import java_icon from "./images/java_logo.svg";
@@ -16,8 +20,28 @@ import node_icon from "./images/node_js_logo.svg";
 import axios from "axios";
 
 // 도커를 통한 신규 컨테이너 생성 및 실행
-async function createContainer(user_id, key, pickImage, rep, useMysql) {
+async function createContainer(user_id, key, state) {
   let c_id;
+  let pickImage = state.imageClicked;
+  let rep = state.git.repo;
+  let useMysql = state.pkg_1;
+
+  var default_label = {
+      "traefik.code-server.frontend.rule": "HostRegexp:localhost,{subdomain:" + user_id + "-" +key + ".run}.localhost",
+      "traefik.code-server.port": "3333",
+      "traefik.enable": "true",
+      "traefik.passHostHeader": "true",
+  }
+
+  for(let i = 1; i < 5; i++){
+    if(state[i] !== undefined){
+      if(state[i].enable === true){
+        default_label["traefik.test-server" + i +".frontend.rule"] = "HostRegexp:localhost,{subdomain:" + user_id + "-" + key + ".run}.localhost;PathPrefixStrip:/my_app"+i
+        default_label["traefik.test-server"+ i +".port"] = state[i].port
+      }
+    }
+  }
+
   try {
     let newContainer = await axios({
       method: "post",
@@ -28,20 +52,8 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
           pickImage === "java"
             ? "dcr.danawa.io/java_spring_vscode:latest" // 트래픽과 같은 포트 사용할것
             : "dcr.danawa.io/nodejs_vscode:latest",
-        ExposedPorts: {
-          "3333/tcp": {},
-        },
-        Labels: {
-          "traefik.frontend.rule": "PathPrefixStrip:/" + user_id + "/" + key,
-          "traefik.backend": user_id + "-" + key,
-          "traefik.port": "3333",
-          "traefik.enable": "true",
-          "traefik.passHostHeader": "true",
-          "traefik.http.middlewares.test-redirectregex.redirectregex.regex":
-            "^http://es2.danawa.io/" + user_id + "/" + key + "/(.*)",
-          "traefik.http.middlewares.test-redirectregex.redirectregex.replacement":
-            "http://es2.danawa.io/" + user_id + "/" + key + "/$${1}",
-        },
+        ExposedPorts: {},
+        Labels: default_label,
         HostConfig: {
           Binds: [],
           NetworkMode: "web",
@@ -70,34 +82,35 @@ async function createContainer(user_id, key, pickImage, rep, useMysql) {
       var data = await axios({
         method: "post",
         url: "/containers/" + c_id + "/exec",
-        data : {
+        data: {
           AttachStdin: false,
           AttachStdout: true,
           AttachStderr: true,
           Tty: false,
           Cmd: [
-            "sh", "-c", "git clone " +
-            (rep !== ""
-              ? rep
-              : pickImage === "java"
-              ? "https://github.com/banhart123/spring-boot-helloworld.git"
-              : "https://github.com/heroku/node-js-sample.git") +
-            (useMysql === "no"
-              ? ""
-              : "&& git clone https://github.com/mysqljs/mysql.git"),
-            ]
-        }
-      })
+            "sh",
+            "-c",
+            "git clone " +
+              (rep !== ""
+                ? rep
+                : pickImage === "java"
+                ? "https://github.com/banhart123/spring-boot-helloworld.git"
+                : "https://github.com/heroku/node-js-sample.git") +
+              (useMysql === "no"
+                ? ""
+                : "&& git clone https://github.com/mysqljs/mysql.git"),
+          ],
+        },
+      });
 
       await axios({
         method: "post",
         url: "/exec/" + data.data.Id + "/start",
-        data : {
-            Detach: true,
-            Tty: false
-        }
+        data: {
+          Detach: true,
+          Tty: false,
+        },
       });
-
     } else {
       console.log("컨테이너가 시작되지 않았습니다.");
     }
@@ -159,6 +172,8 @@ async function duplechk(state) {
   return res;
 }
 
+const users = ["0", "1", "2", "3", "4"];
+
 class MasterPanel extends Component {
   state = {
     group1: "kor",
@@ -182,6 +197,11 @@ class MasterPanel extends Component {
       repo_msg: "",
     },
     user_id: "",
+    connect_urls: users.slice(0, 1),
+    0: {
+      port: 3333,
+      enable: true,
+    },
   };
 
   // 라디오 그룹 제어함수
@@ -241,7 +261,7 @@ class MasterPanel extends Component {
       user_id: window.localStorage.getItem("user_id"),
     });
 
-    let con_key = Math.random().toString(36).substr(2, 11);
+    let con_key = Math.random().toString(36).substr(2, 5);
 
     var chk = await duplechk(this.state);
 
@@ -251,8 +271,7 @@ class MasterPanel extends Component {
         loadOfDatas: false,
         valid_name_duple: true,
         error_msg: {
-          valid_name:
-            "중복된 컨테이너 이름이 존재합니다.",
+          valid_name: "중복된 컨테이너 이름이 존재합니다.",
           valid_content: this.state.error_msg.valid_content,
         },
       });
@@ -264,15 +283,15 @@ class MasterPanel extends Component {
       this.state.error_msg.valid_name === "" &&
       this.state.input_data.name !== "" &&
       (this.state.group3 === "non" ||
-        (this.state.group3 !== "non" && this.state.git.repo !== "" && this.state.git.repo !== undefined))
+        (this.state.group3 !== "non" &&
+          this.state.git.repo !== "" &&
+          this.state.git.repo !== undefined))
     ) {
       insertTable(
         await createContainer(
           window.localStorage.getItem("user_id"),
           con_key,
-          this.state.imageClicked,
-          this.state.git.repo,
-          this.state.pkg_1
+          this.state
         ),
         this.state,
         con_key
@@ -349,6 +368,48 @@ class MasterPanel extends Component {
     });
   };
 
+  handleAdd = () =>
+    this.setState((prevState) => ({
+      connect_urls: users.slice(0, prevState.connect_urls.length + 1),
+    }));
+
+  handleRemove = () =>
+    this.setState((prevState) => ({
+      connect_urls: prevState.connect_urls.slice(0, -1),
+    }));
+
+  handleUrl = (e) => {
+    this.setState({
+      [e.target.name]: {
+        port: e.target.value,
+        enable:
+          this.state[e.target.name] === undefined
+            ? false
+            : this.state[e.target.name].enable,
+      },
+    });
+
+    console.log(this.state);
+  };
+
+  setUrl = (e, k) => {
+    var id = k.name;
+
+    if (this.state[id] !== undefined && this.state[id].port !== "") {
+      this.setState({
+        [k.name]: {
+          port: this.state[id].port,
+          enable:
+            this.state[id].enable === undefined
+              ? true
+              : this.state[id].enable === true
+              ? false
+              : true,
+        },
+      });
+    }
+  };
+
   render() {
     return (
       <div>
@@ -409,10 +470,7 @@ class MasterPanel extends Component {
                   name="name"
                   placeholder="영어 혹은 숫자, 하이픈(-_)만 허용됩니다. (0/20)"
                   onChange={this.handleInputData}
-                  error ={ this.state.error_msg.valid_name !== ""
-                  ?  true 
-                  :  false 
-                  }
+                  error={this.state.error_msg.valid_name !== "" ? true : false}
                 />
                 <Message
                   error
@@ -437,10 +495,7 @@ class MasterPanel extends Component {
                 label="컨테이너 설명"
                 placeholder="컨테이너 설명을 입력해주세요. 0/100"
                 onChange={this.handleInputData}
-                error ={ this.state.error_msg.valid_content !== ""
-                  ?  true 
-                  :  false 
-                  }
+                error={this.state.error_msg.valid_content !== "" ? true : false}
               />
               <Message
                 error
@@ -475,7 +530,7 @@ class MasterPanel extends Component {
                   onChange={this.handleChange}
                 />
                 <Form.Field
-                 control="input"
+                  control="input"
                   style={
                     this.state.group3 === "non"
                       ? { display: "none" }
@@ -485,9 +540,11 @@ class MasterPanel extends Component {
                   name="name"
                   placeholder="Git repository (ex. https://github.com/banhart123/dnw-ojt-ide.git)"
                   onChange={this.inputGitRep}
-                  error ={ this.state.group3 !== "non" && this.state.git.repo_msg !== "" 
-                  ?  true 
-                  :  false 
+                  error={
+                    this.state.group3 !== "non" &&
+                    this.state.git.repo_msg !== ""
+                      ? true
+                      : false
                   }
                 />
                 <div>
@@ -509,6 +566,63 @@ class MasterPanel extends Component {
                   <Icon name="check"/> 체크
                 </Button> */}
               </Form.Group>
+            </Form>
+
+            <h4 className="ui dividing header"> </h4>
+
+            <Form size="large">
+              <Form.Group inline>
+                <label>서버 실행 포트</label>
+                <Button.Group>
+                  <Button
+                    size="tiny"
+                    disabled={this.state.connect_urls.length === 1}
+                    icon="minus"
+                    onClick={this.handleRemove}
+                  />
+                  <Button
+                    size="tiny"
+                    disabled={this.state.connect_urls.length === users.length}
+                    icon="plus"
+                    onClick={this.handleAdd}
+                  />
+                </Button.Group>
+              </Form.Group>
+              <Transition.Group as={List} duration={200} verticalAlign="middle">
+                {this.state.connect_urls.map((item) => (
+                  <List.Item key={item}>
+                    <Segment compact>
+                      <Input
+                        size="mini"
+                        type="number"
+                        name={item}
+                        style={{ width: "25%" }}
+                        label={
+                          "http://[유저아이디]:[KEY].run.es2.danawa.io/" +
+                          (item !== "0" ? "my_app" + item : "")
+                        }
+                        onChange={this.handleUrl}
+                        disabled={item === "0" ? true : false}
+                        placeholder="80~65000"
+                        defaultValue={item === "0" ? "3333 // 기본서버" : ""}
+                      ></Input>
+                      <Radio
+                        label="적용"
+                        name={item}
+                        style={{ float: "right" }}
+                        toggle
+                        disabled={item === "0" ? true : false}
+                        onChange={this.setUrl}
+                        checked={
+                          this.state[item] === undefined
+                            ? false
+                            : this.state[item].enable
+                        }
+                      />
+                    </Segment>
+                  </List.Item>
+                ))}
+              </Transition.Group>
             </Form>
 
             <h4 className="ui dividing header"> </h4>
