@@ -27,7 +27,7 @@ async function createContainer(user_id, key, state) {
   let useMysql = state.pkg_1;
 
   var default_label = {
-      "traefik.code-server.frontend.rule": "HostRegexp:localhost,{subdomain:" + user_id + "-" +key + ".run}.localhost",
+      "traefik.code-server.frontend.rule": "HostRegexp:es2.danawa.io,{subdomain:" + user_id + "-" + key + ".run}.es2.danawa.io",
       "traefik.code-server.port": "3333",
       "traefik.enable": "true",
       "traefik.passHostHeader": "true",
@@ -36,7 +36,7 @@ async function createContainer(user_id, key, state) {
   for(let i = 1; i < 5; i++){
     if(state[i] !== undefined){
       if(state[i].enable === true){
-        default_label["traefik.test-server" + i +".frontend.rule"] = "HostRegexp:localhost,{subdomain:" + user_id + "-" + key + ".run}.localhost;PathPrefixStrip:/my_app"+i
+        default_label["traefik.test-server" + i +".frontend.rule"] = "HostRegexp:es2.danawa.io,{subdomain:" + user_id + "-" + key + ".run}.es2.danawa.io;PathPrefixStrip:/my_app" + i
         default_label["traefik.test-server"+ i +".port"] = state[i].port
       }
     }
