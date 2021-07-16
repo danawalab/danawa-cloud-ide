@@ -15,8 +15,12 @@ h4 {
     width: 97%;
 }
 
-#name {
-    width: 50vh;
+#git-input {
+    width: 15vh;
+}
+
+#git-input_rep {
+    width: 40vh;
 }
 
 .icons {

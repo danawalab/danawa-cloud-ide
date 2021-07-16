@@ -18,14 +18,31 @@ import "semantic-ui-css/semantic.min.css";
 import java_icon from "./images/java_logo.svg";
 import node_icon from "./images/node_js_logo.svg";
 import axios from "axios";
+import CryptoAES from 'crypto-js/aes';
+import CryptoENC from 'crypto-js/enc-utf8';
+
 
 // 도커를 통한 신규 컨테이너 생성 및 실행
 async function createContainer(user_id, key, state) {
   let c_id;
   let pickImage = state.imageClicked;
-  let rep = state.git.repo;
+  
+  let rep;
+  if(state.git.repo !== ""){
+    rep = state.git.repo;
+  
+    if(state.isPub === "false" ){
+      let gitPassword = state.git.repo_password 
+      var bytes = CryptoAES.decrypt(gitPassword.toString(), 'secret key');
+      var originalText = bytes.toString(CryptoENC);
+  
+      rep = [rep.slice(0, 8), state.git.repo_id + ":" + originalText + "@", rep.slice(8)].join('');
+    } 
+  }
+   
   let useMysql = state.pkg_1;
 
+  //컨테이너 라벨링
   var default_label = {
       "traefik.code-server.frontend.rule": "HostRegexp:es2.danawa.io,{subdomain:" + user_id + "-" + key + "}.es2.danawa.io",
       "traefik.code-server.port": "3333",
@@ -178,6 +195,7 @@ class MasterPanel extends Component {
   state = {
     group1: "kor",
     group3: "non",
+    isPub: "true",
     imageClicked: "java",
     loadOfDatas: false,
     result: "",
@@ -193,6 +211,8 @@ class MasterPanel extends Component {
       valid_content: "",
     },
     git: {
+      repo_id: "",
+      repo_password: "",
       repo: "",
       repo_msg: "",
     },
@@ -220,7 +240,6 @@ class MasterPanel extends Component {
 
   // 밸리데이션 체크 & 입력
   handleInputData = (e) => {
-    console.log(this.state);
     let tg = e.target;
     let formError = this.state.error_msg;
     let formInput = this.state.input_data;
@@ -321,7 +340,31 @@ class MasterPanel extends Component {
         this.setState({
           git: {
             repo: "",
-            repo_msg: "깃 리포지토리를 입력해주세요.",
+            repo_msg: "GIT 리포지토리를 입력해주세요.",
+            repo_id: this.state.git.repo_id,
+            repo_password: this.state.git.repo_password,
+          },
+        });
+      }
+
+      if(this.state.isPub === "false" && this.state.git.repo_password === "") {        
+        this.setState({
+          git: {
+            repo: "",
+            repo_msg: "GIT 비밀번호를 입력해주세요",
+            repo_id: this.state.git.repo_id,
+            repo_password: this.state.git.repo_password,
+          },
+        });
+      }
+
+      if(this.state.isPub === "false" && this.state.git.repo_id === "") {
+        this.setState({
+          git: {
+            repo: "",
+            repo_msg: "GIT 아이디를 입력해주세요",
+            repo_id: this.state.git.repo_id,
+            repo_password: this.state.git.repo_password,
           },
         });
       }
@@ -340,7 +383,6 @@ class MasterPanel extends Component {
   // 리포지토리 체크
   getCheckGitRep = async (e) => {
     let msg = "";
-    console.log(this.state.git.repo);
     try {
       msg = await getExistRepository(this.state.git.repo);
     } catch (error) {
@@ -353,10 +395,36 @@ class MasterPanel extends Component {
   inputGitRep = (e) => {
     this.setState({
       git: {
+        repo_id: this.state.git.repo_id,
+        repo_password: this.state.git.repo_password,
         repo: e.target.value,
         repo_msg: "",
       },
     });
+  };
+
+  // 깃리포지토리 작성
+  inputGitRepId = (e) => {
+    this.setState({
+      git: {
+        repo_id: e.target.value,
+        repo_password: this.state.git.repo_password,
+        repo: this.state.git.repo,
+        repo_msg: "",
+      },
+    });
+  };
+
+  // 깃리포지토리 작성
+  inputGitRepPassword = (e) => {
+    this.setState({
+      git: {
+        repo_id: this.state.git.repo_id,
+        repo_password: CryptoAES.encrypt(e.target.value, 'secret key'),
+        repo: this.state.git.repo,
+        repo_msg: "",
+      },
+    });   
   };
 
   // 현재 계정 로그아웃
@@ -529,16 +597,70 @@ class MasterPanel extends Component {
                   checked={this.state.group3 === "git"}
                   onChange={this.handleChange}
                 />
+              </Form.Group>
+              <Form.Group inline>
+              <Form.Radio
+                  label="Public"
+                  style={
+                    this.state.group3 === "non"
+                      ? { display: "none" }
+                      : { display: "inline" }
+                  }
+                  name="isPub"
+                  value="true"
+                  checked={this.state.isPub === "true"}
+                  onChange={this.handleChange}
+                />
+                <Form.Radio
+                  label="Private"
+                  style={
+                    this.state.group3 === "non"
+                      ? { display: "none" }
+                      : { display: "inline" }
+                  }
+                  name="isPub"
+                  value="false"
+                  checked={this.state.isPub === "false"}
+                  onChange={this.handleChange}
+                />
                 <Form.Field
+                  control="input"
+                  style={
+                    this.state.group3 !== "non" && this.state.isPub === "false"
+                      ? { display: "inline" }
+                      : { display: "none" }
+                  }
+                  id="git-input"
+                  placeholder="Git ID"
+                  onChange={this.inputGitRepId}
+                  error={
+                    this.state.isPub === "false" && this.state.git.repo_msg !== "" ? true : false
+                  }
+                />
+                <Form.Field
+                  control="input"
+                  style={
+                    this.state.group3 !== "non" && this.state.isPub === "false"
+                      ? { display: "inline" }
+                      : { display: "none" }
+                  }
+                  id="git-input"
+                  type="password"
+                  placeholder="Git Password"
+                  onChange={this.inputGitRepPassword}
+                  error={
+                    this.state.isPub === "false" && this.state.git.repo_msg !== "" ? true : false
+                  }
+                />              
+              <Form.Field
                   control="input"
                   style={
                     this.state.group3 === "non"
                       ? { display: "none" }
                       : { display: "inline" }
                   }
-                  id="name"
-                  name="name"
-                  placeholder="Git repository (ex. https://github.com/banhart123/dnw-ojt-ide.git)"
+                  id="git-input_rep"
+                  placeholder="(ex. https://github.com/banhart123/dnw-ojt-ide.git)"
                   onChange={this.inputGitRep}
                   error={
                     this.state.group3 !== "non" &&
@@ -561,11 +683,10 @@ class MasterPanel extends Component {
                     <p>{this.state.git.repo_msg}</p>
                   </Message>
                 </div>
-
                 {/* <Button size="large" style={{marginLeft: "5px"}} onClick={this.getCheckGitRep}>
                   <Icon name="check"/> 체크
                 </Button> */}
-              </Form.Group>
+                </Form.Group>
             </Form>
 
             <h4 className="ui dividing header"> </h4>
@@ -604,7 +725,7 @@ class MasterPanel extends Component {
                         onChange={this.handleUrl}
                         disabled={item === "0" ? true : false}
                         placeholder="80~65000"
-                        defaultValue={item === "0" ? "3333 // 기본서버" : ""}
+                        defaultValue={item === "0" ? "3333" : ""}
                       ></Input>
                       <Radio
                         label="적용"
