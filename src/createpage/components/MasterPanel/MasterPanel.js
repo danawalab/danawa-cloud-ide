@@ -26,20 +26,6 @@ import CryptoENC from 'crypto-js/enc-utf8';
 async function createContainer(user_id, key, state) {
   let c_id;
   let pickImage = state.imageClicked;
-  
-  let rep;
-  if(state.git.repo !== ""){
-    rep = state.git.repo;
-  
-    if(state.isPub === "false" ){
-      let gitPassword = state.git.repo_password 
-      var bytes = CryptoAES.decrypt(gitPassword.toString(), 'secret key');
-      var originalText = bytes.toString(CryptoENC);
-  
-      rep = [rep.slice(0, 8), state.git.repo_id + ":" + originalText + "@", rep.slice(8)].join('');
-    } 
-  }
-   
   let useMysql = state.pkg_1;
 
   //컨테이너 라벨링
@@ -95,6 +81,16 @@ async function createContainer(user_id, key, state) {
         method: "post",
         url: "/containers/" + c_id + "/start",
       });
+
+      var rep = state.git.repo;
+      
+      if(state.group3 !== "non" && state.isPub === "false"){
+        let gitPassword = state.git.repo_password 
+        var bytes = CryptoAES.decrypt(gitPassword.toString(), 'secret key');
+        var originalText = bytes.toString(CryptoENC);
+    
+        rep = [rep.slice(0, 8), state.git.repo_id + ":" + originalText + "@", rep.slice(8)].join('');
+      } 
 
       var data = await axios({
         method: "post",
