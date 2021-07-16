@@ -481,7 +481,7 @@ class MasterPanel extends Component {
   render() {
     return (
       <div>
-        <Dimmer className="loadingBar" active={this.state.loadOfDatas}>
+        <Dimmer id="loadingBar" active={this.state.loadOfDatas}>
           <Loader
             style={
               this.state.port !== null
