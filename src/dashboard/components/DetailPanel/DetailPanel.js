@@ -99,7 +99,7 @@ class DetailPanel extends Component {
   // 외부 포트 컨테이너 오픈
   startExtContainer = async(e) => {
     let item = this.state.container[e.target.value];
-    window.open("http://" + window.localStorage.getItem("user_id") + "-" + item.port + "-" +  + ".es2.danawa.io:3333", "_blank");
+    window.open("http://" + window.localStorage.getItem("user_id") + "-" + item.port + "-" +  e.target.name + ".es2.danawa.io:3333", "_blank");
   }
 
 
