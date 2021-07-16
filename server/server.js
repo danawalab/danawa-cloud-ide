@@ -62,10 +62,14 @@ app.post("/api/insert", (req, res) => {
   const stack_cd = req.body.stack_cd;
   const ADDPKG_CD_1 = req.body.pkg_1;
   const port = req.body.port;
+  const ext_port_1 = req.body.ext_port_1;
+  const ext_port_2 = req.body.ext_port_2;
+  const ext_port_3 = req.body.ext_port_3;
+  const ext_port_4 = req.body.ext_port_4;
 
   db.query(
-    "INSERT INTO CONTAINER_INFO(	USER_ID,     CONTAINER_ID,    CONTAINER_NM,    NOTE_TXT,	TMLT_DTL,    STACK_CD,    ADDPKG_CD_1, PORT, UPDATE_DTS,    INSERT_DTS) " +
-      "VALUES (	(?),    (?),    (?),    (?),     (?),    (?),    (?),    (?),    NOW(),    NOW())",
+    "INSERT INTO CONTAINER_INFO(	USER_ID,     CONTAINER_ID,    CONTAINER_NM,    NOTE_TXT,	TMLT_DTL,    STACK_CD,    ADDPKG_CD_1, PORT, EXT_PORT_1, EXT_PORT_2, EXT_PORT_3, EXT_PORT_4, UPDATE_DTS,    INSERT_DTS) " +
+      "VALUES (	(?),    (?),    (?),    (?),     (?),    (?),    (?),    (?),  (?), (?), (?), (?),    NOW(),    NOW())",
     [
       user_id,
       container_id,
@@ -74,7 +78,11 @@ app.post("/api/insert", (req, res) => {
       tmpl_dtl,
       stack_cd,
       ADDPKG_CD_1,
-      port
+      port,
+      ext_port_1,
+      ext_port_2,
+      ext_port_3,
+      ext_port_4
     ],
     (err, data) => {
       if (!err) res.send({ container: data });

@@ -96,6 +96,12 @@ class DetailPanel extends Component {
     }
   }
 
+  // 외부 포트 컨테이너 오픈
+  startExtContainer = async(e) => {
+    let item = this.state.container[e.target.value];
+    window.open("http://" + window.localStorage.getItem("user_id") + "-" + item.port + ".es2.danawa.io:3333/my_app" + e.target.name, "_blank");
+  }
+
 
   handleCancel = () => this.setState({open: false, loadOfDatas: false });
   show = (e) => {this.setState({ open: true, target : e.target.value, action : e.target.name}); } 
@@ -138,6 +144,12 @@ class DetailPanel extends Component {
                   value={i}
                   onClick={this.startContainer}
                 ></Button>
+                <Button.Group size="mini" className="content-ext-button" widths='4' color="orange">
+                  <Button value={i} name="1" onClick={this.startExtContainer}>PORT 1 <br/> {item.ext_port_1 === "" || item.ext_port_1 === undefined ? "X" : item.ext_port_1}</Button>
+                  <Button value={i} name="2" onClick={this.startExtContainer}>PORT 2 <br/> {item.ext_port_2 === "" || item.ext_port_2 === undefined ? "X" : item.ext_port_2}</Button>
+                  <Button value={i} name="3" onClick={this.startExtContainer}>PORT 3 <br/> {item.ext_port_3 === "" || item.ext_port_3 === undefined ? "X" : item.ext_port_3}</Button>
+                  <Button value={i} name="4" onClick={this.startExtContainer}>PORT 4 <br/> {item.ext_port_4 === "" || item.ext_port_4 === undefined ? "X" : item.ext_port_4}</Button>
+                </Button.Group>
                 <Button icon className="content-button-stop" color="grey" name="stop" value={i} onClick={this.show}>정지</Button>
               </Card.Content>
               <Button

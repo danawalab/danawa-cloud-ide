@@ -171,6 +171,10 @@ function insertTable(id, state, port) {
       stack_cd: state.imageClicked,
       pkg_1: state.pkg_1,
       port: port,
+      ext_port_1: state[1] !== undefined ? (state[1].enable === true ? state[1].port : "") : "",
+      ext_port_2: state[2] !== undefined ? (state[2].enable === true ? state[2].port : "") : "",
+      ext_port_3: state[3] !== undefined ? (state[3].enable === true ? state[3].port : "") : "",
+      ext_port_4: state[4] !== undefined ? (state[4].enable === true ? state[4].port : "") : "",
     },
   });
 }

@@ -44,16 +44,24 @@
 .content-button {
   left: 23px;
   width: 200px;
-  bottom: 30px;
+  bottom: 67.5px;
   font-weight: bold;
   position: absolute;
   color: black;
 }
 
+.content-ext-button {
+  left: 0px;
+  width: 200px;
+  bottom: 25px;
+  font-weight: bold;
+  position: absolute;
+}
+
 .content-button-stop {
   left: 200px;
   width: 70px;
-  bottom: 30px;
+  bottom: 67.5px;
   font-weight: bold;
   position: absolute;
   color: black;
@@ -101,7 +109,7 @@ img:hover, .container:hover {
 .container-text-lang {
   left: 23px;
   width: 120px;
-  bottom: 70px;
+  bottom: 105px;
   font-weight: bold;
   position: absolute;
 }
@@ -109,7 +117,7 @@ img:hover, .container:hover {
 .container-text-zone {
   left: 150px;
   width: 120px;
-  bottom: 70px;
+  bottom: 105px;
   font-weight: bold;
   position: absolute;
 }
