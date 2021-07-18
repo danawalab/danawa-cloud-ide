@@ -719,8 +719,7 @@ class MasterPanel extends Component {
                         name={item}
                         style={{ width: "25%" }}
                         label={
-                          "http://[유저아이디]-[KEY]-[포트번호].es2.danawa.io/" +
-                          (item !== "0" ? "my_app" + item : "")
+                          "http://[유저아이디]-[KEY]-[포트번호].es2.danawa.io/"
                         }
                         onChange={this.handleUrl}
                         disabled={item === "0" ? true : false}
