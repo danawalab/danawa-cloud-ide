@@ -1,6 +1,9 @@
 FROM ubuntu:18.04
 COPY . /app
 
+RUN apt-get update
+RUN apt install docker.io -y
+
 FROM node:10.16.0
 
 # nodejs for vscode plugin
@@ -12,8 +15,6 @@ RUN chmod o+x /root/.nvm/nvm.sh
 RUN /bin/bash -c "source /root/.nvm/nvm.sh && nvm install v12.0.0"
 ENV PATH="/root/.nvm/versions/node/v12.0.0/bin/:${PATH}"
 
-RUN apt-get update
-RUN apt install docker.io -y
 VOLUME /var/run/docker.sock:/var/run/docker.sock
 
 # nodejs
