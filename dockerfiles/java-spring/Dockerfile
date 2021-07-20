@@ -26,7 +26,6 @@ RUN wget https://github.com/cdr/code-server/releases/download/3.2.0/code-server-
 RUN tar xzf code-server-3.2.0-linux-x86_64.tar.gz -C ./ --strip-components 1
 
 ADD ./myapp /root/.local/share/code-server/User
-
 WORKDIR /home/danawa
 
 CMD ["/bin/bash", "-c", "nohup dockerd >/dev/null 2>&1 && /home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]

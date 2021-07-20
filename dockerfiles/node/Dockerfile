@@ -23,7 +23,6 @@ WORKDIR /home/danawa/works
 WORKDIR /home/danawa/.code-server
 RUN wget https://github.com/cdr/code-server/releases/download/3.2.0/code-server-3.2.0-linux-x86_64.tar.gz
 RUN tar -xvzf code-server-3.2.0-linux-x86_64.tar.gz -C ./ --strip-components 1
-
 WORKDIR /home/danawa
 
 CMD ["/bin/bash", "-c", "nohup dockerd >/dev/null 2>&1 && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
