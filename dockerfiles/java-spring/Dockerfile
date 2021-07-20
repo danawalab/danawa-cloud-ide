@@ -8,6 +8,9 @@ RUN mkdir -p /home/danawa/works
 WORKDIR /home/danawa/works
 
 RUN apt-get update
+RUN apt install docker.io -y
+VOLUME /var/run/docker.sock:/var/run/docker.sock
+
 RUN apt-get install -y curl wget gnupg less lsof net-tools git apt-utils -y
 RUN apt-get install -y build-essential libssl-dev curl git-core
 RUN apt-get install -y emacs
@@ -26,4 +29,4 @@ ADD ./myapp /root/.local/share/code-server/User
 
 WORKDIR /home/danawa
 
-CMD ["sh", "-c", "/home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]
+CMD ["/bin/bash", "-c", "nohup dockerd >/dev/null 2>&1 && /home/danawa/.code-server/code-server --install-extension vscjava.vscode-java-pack --force && /home/danawa/.code-server/code-server --port 3333 --host 0.0.0.0 --auth none"]

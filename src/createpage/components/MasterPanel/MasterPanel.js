@@ -60,6 +60,7 @@ async function createContainer(user_id, key, state) {
         HostConfig: {
           Binds: [],
           NetworkMode: "web",
+          Privileged: true,
         },
         NetworkingConfig: {
           EndpointsConfig: {
