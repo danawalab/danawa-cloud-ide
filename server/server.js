@@ -1,13 +1,21 @@
-const { response } = require("express");
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 4000;
 const db = require("./config/db");
 const cors = require("cors");
 const bodyParser = require('body-parser');
+const prom = require('prom-client');
 
 app.use(bodyParser.json())
 app.use(cors());
+
+app.get('/metrics', function (req, res) {
+  res.set('Content-Type', prom.register.contentType);
+  res.end(prom.register.metrics());
+});
+
+const collectDefaultMetrics = prom.collectDefaultMetrics;
+collectDefaultMetrics({ prefix: 'my_ide:' });
 
 // 컨테이너 조회
 app.post("/api/search", (req, res) => {
