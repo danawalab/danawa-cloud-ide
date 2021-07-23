@@ -24,16 +24,8 @@ const gauge = new prom.Gauge({
   labelNames: ['method', 'statusCode'],
 });
 
-// 컨테이너 조회 쿼리 수행시간
-const gauge = new prom.Gauge({
-  name: 'my_ide:nodejs_time_search_container',
-  help: 'metric_help',
-  labelNames: ['method', 'statusCode'],
-});
-
 // 컨테이너 조회
 app.post("/api/search", (req, res) => {
-  gauge.setToCurrentTime();
   const user_id = req.body.userId;
   db.query(
     "SELECT * FROM USER_INFO UI INNER JOIN CONTAINER_INFO CI ON UI.USER_ID = CI.USER_ID WHERE UI.USER_ID = (?) ORDER BY CI.INSERT_DTS DESC",
@@ -43,7 +35,6 @@ app.post("/api/search", (req, res) => {
       else res.send(err);
     }
   );
-  gauge.startTimer();
 });
 
 // 중복 컨테이너 조회
@@ -73,7 +64,6 @@ app.post("/api/delete", (req, res) => {
       else res.send(err);
     }
   );
-  gauge.dec();
 });
 
 // 컨테이너 생성
@@ -113,7 +103,16 @@ app.post("/api/insert", (req, res) => {
       else res.send(err);
     }
   );
+});
+
+app.all('/api/insert', function (req, res, next) {
   gauge.inc();
+  next();
+});
+
+app.all('/api/delete', function (req, res, next) {
+  gauge.dec();
+  next();
 });
 
 // 회원가입
