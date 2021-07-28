@@ -30,17 +30,19 @@ class DetailPanel extends Component {
     try {
       const res = await axios.post("/api/search", {userId : window.localStorage.getItem("user_id")});
       var arr = [];
-      
+
       for (let element of res.data.container) {
-        let info = await axios.get("/containers/" + element.container_id + "/json");
-        arr.push(info.data.State.Running);
+        try {
+          let info = await axios.get("/containers/" + element.container_id + "/json");
+          arr.push(info.data.State.Running);
+        } catch(e) {
+          console.log(e);
+        }
       }
       console.log(res.data.container);
       this.setState({ container: res.data.container, container_status : arr, loadOfDatas: false});
     } catch(e) {
       console.log(e);
-    } finally {
-      this.setState({loadOfDatas: false});
     }
   };
 
@@ -140,9 +142,8 @@ class DetailPanel extends Component {
                 </Label>
                 <Label className="container-text-zone" color="red" style={this.state.container_status[i] === true ? {display:"none"} : {display:"block"}}>
                   상태
-                  <Label.Detail>Stop</Label.Detail>
-                </Label>              
-
+                  <Label.Detail>{this.state.container_status[i] === undefined ? "삭제됨" : "Stop"}</Label.Detail>
+                </Label>
                 <Button
                   className="content-button"
                   content="▶ 터미널 실행"
