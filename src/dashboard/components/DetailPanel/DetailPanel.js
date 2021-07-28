@@ -27,15 +27,21 @@ class DetailPanel extends Component {
 
   // 컨테이너 조회
   _getContainer = async () => {
-    const res = await axios.post("/api/search", {userId : window.localStorage.getItem("user_id")});
-    var arr = [];
-
-    for (let element of res.data.container) {
-      let info = await axios.get("/containers/" + element.container_id + "/json");
-      arr.push(info.data.State.Running);
+    try {
+      const res = await axios.post("/api/search", {userId : window.localStorage.getItem("user_id")});
+      var arr = [];
+      
+      for (let element of res.data.container) {
+        let info = await axios.get("/containers/" + element.container_id + "/json");
+        arr.push(info.data.State.Running);
+      }
+      console.log(res.data.container);
+      this.setState({ container: res.data.container, container_status : arr, loadOfDatas: false});
+    } catch(e) {
+      console.log(e);
+    } finally {
+      this.setState({loadOfDatas: false});
     }
-    console.log(res.data.container);
-    this.setState({ container: res.data.container, container_status : arr, loadOfDatas: false});
   };
 
   // state 변경사항 있을때 다시 그리기 여부
