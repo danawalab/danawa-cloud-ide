@@ -119,12 +119,16 @@ app.all('/api/delete', function (req, res, next) {
 app.post("/api/join", (req, res) => {
   const user_id = req.body.user_id;
   const user_pwd = req.body.user_pwd;
+  const serialkey_1 = req.body.serialkey;
+  const serialkey_2 = req.body.serialkey;
 
   db.query(
-    "INSERT INTO USER_INFO(USER_ID, USER_PWD, UPDATE_DTS, INSERT_DTS) " + "VALUES (	(?), (?), NOW(), NOW())",
+    "INSERT INTO USER_INFO(USER_ID, USER_PWD, SERIALKEY, UPDATE_DTS, INSERT_DTS) " + "VALUES ((?), hex(aes_encrypt((?), (?))), (?), NOW(), NOW())",
     [
       user_id,
-      user_pwd
+      user_pwd,
+      serialkey_1,
+      serialkey_2
     ],
     (err, data) => {
       if (!err) res.send({ container: data });
@@ -138,8 +142,8 @@ app.post("/api/login", (req, res) => {
   const user_id = req.body.user_id;
   const user_pwd = req.body.user_pwd;
   db.query(
-    "SELECT * FROM USER_INFO WHERE USER_ID = (?) AND USER_PWD = (?)",
-    [user_id, user_pwd],
+    "SELECT * FROM USER_INFO WHERE USER_ID = (?) AND (?) = (SELECT AES_DECRYPT(unhex((USER_PWD)), SERIALKEY) FROM USER_INFO WHERE USER_ID = (?)) OR (SERIALKEY IS NULL AND USER_ID = (?) AND USER_PWD = (?))",
+    [user_id, user_pwd, user_id, user_id, user_pwd],
     (err, data) => {
       if (!err) res.send({ container: data });
       else res.send(err);

@@ -20,6 +20,7 @@ async function insertUserInfo(state) {
     data: {
       user_id: state.user_id,
       user_pwd: state.user_pwd,
+      serialkey: state.serialkey,
     },
   });
 }
@@ -30,7 +31,8 @@ class JoinForm extends React.Component {
     user_pwd: "",
     join_failMsg: "",
     join_accept: false,
-    user_pwd_double: ""
+    user_pwd_double: "",
+    serialkey: Math.random().toString(36).substr(2, 5)
   };
 
   handleId = (e) => {
