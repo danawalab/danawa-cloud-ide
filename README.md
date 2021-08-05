@@ -7,6 +7,3 @@
 
 # 사용 이미지
 - dcr.danawa.io/ojt_ide_backend, dcr.danawa.io/ojt_ide_frontend, dcr.danawa.io/ojt_ide_mysql
-
-# 테이블 정보
-./mysql/sqls/initialize.sql

@@ -115,6 +115,11 @@ class LoginForm extends Component {
                 <h4>회원 신규 등록</h4>
               </Link>
             </Message>
+            <Message>
+              <Link to={{ pathname: "/join?remove=true" }}>
+                <h4>계정 삭제</h4>
+              </Link>
+            </Message>
             <Message
               style={
                 this.state.login_result === ""

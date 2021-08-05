@@ -25,6 +25,18 @@ async function insertUserInfo(state) {
   });
 }
 
+async function deleteUserInfo(state) {
+  return await axios({
+    method: "post",
+    url: "/api/deleteId",
+    headers: { "Content-Type": "application/json" },
+    data: {
+      user_id: state.user_id,
+      user_pwd: state.user_pwd,
+    },
+  });
+}
+
 class JoinForm extends React.Component {
   state = {
     user_id: "",
@@ -56,7 +68,7 @@ class JoinForm extends React.Component {
     });
   };
 
-  handleJoin = async (e) => {
+  handleControl = async (e) => {
     var flag = true;
     
     if(this.state.user_id === ""){
@@ -75,9 +87,15 @@ class JoinForm extends React.Component {
     } 
     
     if(flag === true){
-      var msg = await insertUserInfo(this.state);
+      var msg;
+      
+      if(this.props.location.pathname === "/join?remove=true" || this.props.location.search === "?remove=true"){
+        msg = await deleteUserInfo(this.state);
+      } else {
+        msg = await insertUserInfo(this.state);
+      }
+      
       if (msg.data.errno === undefined || msg.status !== 200) {
-        console.log("회원가입 성공");
         this.setState({ join_accept: true });
       } else {
         this.setState({ join_failMsg: msg.data.code });
@@ -93,12 +111,16 @@ class JoinForm extends React.Component {
   };
 
   render() {
+    var isRemove = (this.props.location.pathname === "/join?remove=true" || this.props.location.search === "?remove=true");
+    console.log(this.props.history.location.search);
+    console.log(this.props);
+    
     return (
       <div>
         <Modal
           open={this.state.join_accept}
-          header="가입완료!"
-          content="가입이 완료되었습니다. 생성된 아이디로 로그인 가능합니다."
+          header={isRemove ? "삭제완료!" : "가입완료!"}
+          content={isRemove ? "삭제가 완료되었습니다." : "가입이 완료되었습니다. 생성된 아이디로 로그인 가능합니다."}
           actions={[{ key: "done", content: "확인", positive: true }]}
           onClick={this.handleModal}
         />
@@ -110,7 +132,7 @@ class JoinForm extends React.Component {
           <Grid.Column style={{ textAlign: "left", maxWidth: 700 }}>
             <Divider hidden />
             <Message info style={{ textAlign: "center" }}>
-              <Message.Header>회원 가입</Message.Header>
+              <Message.Header>{isRemove ? "계정 삭제" : "회원 가입"}</Message.Header>
             </Message>
             <Segment>
               <Form>
@@ -148,8 +170,11 @@ class JoinForm extends React.Component {
                     <Icon name="reply"></Icon>뒤로
                   </Button>
                 </Link>
-                <Button type="submit" onClick={this.handleJoin}>
+                <Button type="submit" onClick={this.handleControl} style={isRemove ? {display:"none"} : { display:"inline"}}>
                   가입하기
+                </Button>
+                <Button type="submit" color="red" onClick={this.handleControl} style={isRemove ? {display:"inline"} : { display:"none"}}>
+                  삭제하기
                 </Button>
               </Form>
             </Segment>
@@ -161,7 +186,7 @@ class JoinForm extends React.Component {
               }
               negative
             >
-              <Message.Header>회원가입 실패</Message.Header>
+              <Message.Header>FAIL !!</Message.Header>
               <div>
                 <div>{this.state.join_failMsg}</div>
               </div>

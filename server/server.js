@@ -3,25 +3,26 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const db = require("./config/db");
 const cors = require("cors");
-const bodyParser = require('body-parser');
-const prom = require('prom-client');
+const bodyParser = require("body-parser");
+const prom = require("prom-client");
+const request = require("request");
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/metrics', function (req, res) {
-  res.set('Content-Type', prom.register.contentType);
+app.get("/metrics", function (req, res) {
+  res.set("Content-Type", prom.register.contentType);
   res.end(prom.register.metrics());
 });
 
 const collectDefaultMetrics = prom.collectDefaultMetrics;
-collectDefaultMetrics({ prefix: 'my_ide:' });
+collectDefaultMetrics({ prefix: "my_ide:" });
 
 // 컨테이너 수
 const gauge = new prom.Gauge({
-  name: 'my_ide:nodejs_count_container',
-  help: 'metric_help',
-  labelNames: ['method', 'statusCode'],
+  name: "my_ide:nodejs_count_container",
+  help: "metric_help",
+  labelNames: ["method", "statusCode"],
 });
 
 // 컨테이너 조회
@@ -96,7 +97,7 @@ app.post("/api/insert", (req, res) => {
       ext_port_1,
       ext_port_2,
       ext_port_3,
-      ext_port_4
+      ext_port_4,
     ],
     (err, data) => {
       if (!err) res.send({ container: data });
@@ -105,12 +106,12 @@ app.post("/api/insert", (req, res) => {
   );
 });
 
-app.all('/api/insert', function (req, res, next) {
+app.all("/api/insert", function (req, res, next) {
   gauge.inc();
   next();
 });
 
-app.all('/api/delete', function (req, res, next) {
+app.all("/api/delete", function (req, res, next) {
   gauge.dec();
   next();
 });
@@ -123,13 +124,24 @@ app.post("/api/join", (req, res) => {
   const serialkey_2 = req.body.serialkey;
 
   db.query(
-    "INSERT INTO USER_INFO(USER_ID, USER_PWD, SERIALKEY, UPDATE_DTS, INSERT_DTS) " + "VALUES ((?), hex(aes_encrypt((?), (?))), (?), NOW(), NOW())",
-    [
-      user_id,
-      user_pwd,
-      serialkey_1,
-      serialkey_2
-    ],
+    "INSERT INTO USER_INFO(USER_ID, USER_PWD, SERIALKEY, UPDATE_DTS, INSERT_DTS) " +
+      "VALUES ((?), hex(aes_encrypt((?), (?))), (?), NOW(), NOW())",
+    [user_id, user_pwd, serialkey_1, serialkey_2],
+    (err, data) => {
+      if (!err) res.send({ container: data });
+      else res.send(err);
+    }
+  );
+});
+
+// 계정삭제
+app.post("/api/deleteId", (req, res) => {
+  const user_id = req.body.user_id;
+  const user_pwd = req.body.user_pwd;
+
+  db.query(
+    "DELETE FROM USER_INFO WHERE USER_ID = (?) AND (?) = (SELECT PWD FROM (SELECT AES_DECRYPT(unhex((USER_PWD)), SERIALKEY) PWD FROM USER_INFO WHERE USER_ID = (?)) AS TEMP)",
+    [user_id, user_pwd, user_id],
     (err, data) => {
       if (!err) res.send({ container: data });
       else res.send(err);
@@ -151,6 +163,26 @@ app.post("/api/login", (req, res) => {
   );
 });
 
+app.post("/api/repository", (req, res) => {
+  const url = req.body.url;
+  request({
+      url: url,
+      method: "POST",
+      json: true
+  }, function (error, response, body){
+    if (!error && (response.statusCode == "301" || response.statusCode == "200")) {
+      console.log(response.statusCode);
+      res.send({
+        exist : true
+      });
+    } else {
+      console.log(error);
+      res.send({
+        exist : false
+      });
+    }
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server On : http://localhost:${PORT}/`);

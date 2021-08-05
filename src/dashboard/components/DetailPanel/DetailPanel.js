@@ -39,7 +39,9 @@ class DetailPanel extends Component {
           console.log(e);
         }
       }
-      console.log(res.data.container);
+      
+      window.localStorage.setItem("container_info", arr);
+      this.props.parentFunction(arr); 
       this.setState({ container: res.data.container, container_status : arr, loadOfDatas: false});
     } catch(e) {
       console.log(e);

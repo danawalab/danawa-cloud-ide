@@ -13,6 +13,7 @@ import {
   List,
   Transition,
   Radio,
+  Icon
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import java_icon from "./images/java_logo.svg";
@@ -56,6 +57,9 @@ async function createContainer(user_id, key, state) {
             ? "dcr.danawa.io/java_spring_vscode:latest" // 트래픽과 같은 포트 사용할것
             : "dcr.danawa.io/nodejs_vscode:latest",
         ExposedPorts: {},
+        Env : [
+          "PASSWORD="+user_id
+        ],
         Labels: default_label,
         HostConfig: {
           Binds: [],
@@ -75,7 +79,6 @@ async function createContainer(user_id, key, state) {
     });
 
     c_id = newContainer.data.Id;
-    console.log(newContainer.data.Id);
 
     if (c_id !== null) {
       await axios({
@@ -89,7 +92,6 @@ async function createContainer(user_id, key, state) {
         let gitPassword = state.git.repo_password 
         var bytes = CryptoAES.decrypt(gitPassword.toString(), 'secret key');
         var originalText = bytes.toString(CryptoENC);
-    
         rep = [rep.slice(0, 8), state.git.repo_id + ":" + originalText + "@", rep.slice(8)].join('');
       } 
 
@@ -136,15 +138,7 @@ async function createContainer(user_id, key, state) {
 
 // 깃 레포지토리 조회
 async function getExistRepository(url) {
-  console.log(url);
-  const res = axios({
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
-    method: "get",
-    url: url,
-  });
-
+  const res = await axios.post("/api/repository", {url : url});
   return res;
 }
 
@@ -218,7 +212,8 @@ class MasterPanel extends Component {
       repo_msg: "",
     },
     user_id: "",
-    connect_urls: users.slice(0, 1),
+    container_cnt: window.localStorage.getItem("container_info").split(',').length,
+    connect_urls: users.slice(0, 1), 
     0: {
       port: 3333,
       enable: true,
@@ -274,100 +269,114 @@ class MasterPanel extends Component {
   };
 
   // 생성 버튼 ok 콜백함수
-  handleConfirm = async () => {
-    this.setState({
-      result: "yes",
-      loadOfDatas: true,
-      user_id: window.localStorage.getItem("user_id"),
-    });
-
-    let con_key = Math.random().toString(36).substr(2, 5);
-
-    var chk = await duplechk(this.state);
-
-    if (chk.data.count > 0) {
+  handleConfirm = async () => {    
+    if(this.state.container_cnt < 10){
       this.setState({
-        result: "no",
-        loadOfDatas: false,
-        valid_name_duple: true,
-        error_msg: {
-          valid_name: "중복된 컨테이너 이름이 존재합니다.",
-          valid_content: this.state.error_msg.valid_content,
-        },
+        result: "yes",
+        loadOfDatas: true,
+        user_id: window.localStorage.getItem("user_id"),
       });
-    }
-
-    if (
-      chk.data.count === 0 &&
-      this.state.error_msg.valid_content === "" &&
-      this.state.error_msg.valid_name === "" &&
-      this.state.input_data.name !== "" &&
-      (this.state.group3 === "non" ||
-        (this.state.group3 !== "non" &&
-          this.state.git.repo !== "" &&
-          this.state.git.repo !== undefined))
-    ) {
-      insertTable(
-        await createContainer(
-          window.localStorage.getItem("user_id"),
-          con_key,
-          this.state
-        ),
-        this.state,
-        con_key
-      );
-      setTimeout(
-        function () {
-          this.setState({ port: con_key });
-        }.bind(this),
-        8000
-      );
-    } else {
-      this.setState({
-        result: "no",
-        loadOfDatas: false,
-      });
-
-      if (this.state.input_data.name === "") {
+  
+      let con_key = Math.random().toString(36).substr(2, 5);
+  
+      var chk = await duplechk(this.state);
+  
+      if (chk.data.count > 0) {
         this.setState({
+          result: "no",
+          loadOfDatas: false,
+          valid_name_duple: true,
           error_msg: {
-            valid_name: "컨테이너 이름이 공백입니다.",
+            valid_name: "중복된 컨테이너 이름이 존재합니다.",
             valid_content: this.state.error_msg.valid_content,
           },
         });
       }
-
-      if (this.state.group3 !== "non" && this.state.git.repo === "") {
+  
+      if (
+        chk.data.count === 0 &&
+        this.state.error_msg.valid_content === "" &&
+        this.state.error_msg.valid_name === "" &&
+        this.state.input_data.name !== "" &&
+        (this.state.group3 === "non" ||
+          (this.state.group3 !== "non" &&
+            this.state.git.repo !== "" &&
+            this.state.git.repo_msg !== "" &&
+            this.state.git.repo !== undefined))
+      ) {
+        insertTable(
+          await createContainer(
+            window.localStorage.getItem("user_id"),
+            con_key,
+            this.state
+          ),
+          this.state,
+          con_key
+        );
+        setTimeout(
+          function () {
+            this.setState({ port: con_key });
+          }.bind(this),
+          8000
+        );
+      } else {
         this.setState({
-          git: {
-            repo: "",
-            repo_msg: "GIT 리포지토리를 입력해주세요.",
-            repo_id: this.state.git.repo_id,
-            repo_password: this.state.git.repo_password,
-          },
+          result: "no",
+          loadOfDatas: false,
         });
-      }
+  
+        if (this.state.input_data.name === "") {
+          this.setState({
+            error_msg: {
+              valid_name: "컨테이너 이름이 공백입니다.",
+              valid_content: this.state.error_msg.valid_content,
+            },
+          });
+        }
+  
+        if (this.state.group3 !== "non" && this.state.git.repo === "") {
+          this.setState({
+            git: {
+              repo: "",
+              repo_msg: "GIT 리포지토리를 입력해주세요.",
+              repo_id: this.state.git.repo_id,
+              repo_password: this.state.git.repo_password,
+            },
+          });
+        }
 
-      if(this.state.isPub === "false" && this.state.git.repo_password === "") {        
-        this.setState({
-          git: {
-            repo: "",
-            repo_msg: "GIT 비밀번호를 입력해주세요",
-            repo_id: this.state.git.repo_id,
-            repo_password: this.state.git.repo_password,
-          },
-        });
-      }
-
-      if(this.state.isPub === "false" && this.state.git.repo_id === "") {
-        this.setState({
-          git: {
-            repo: "",
-            repo_msg: "GIT 아이디를 입력해주세요",
-            repo_id: this.state.git.repo_id,
-            repo_password: this.state.git.repo_password,
-          },
-        });
+        if (this.state.group3 !== "non" && this.state.git.repo_msg === "") {
+          this.setState({
+            git: {
+              repo: this.state.git.repo,
+              repo_msg: "GIT 리포지토리를 체크해주세요.",
+              repo_id: this.state.git.repo_id,
+              repo_password: this.state.git.repo_password,
+            },
+          });
+        }
+  
+        if(this.state.isPub === "false" && this.state.git.repo_password === "") {        
+          this.setState({
+            git: {
+              repo: "",
+              repo_msg: "GIT 비밀번호를 입력해주세요",
+              repo_id: this.state.git.repo_id,
+              repo_password: this.state.git.repo_password,
+            },
+          });
+        }
+  
+        if(this.state.isPub === "false" && this.state.git.repo_id === "") {
+          this.setState({
+            git: {
+              repo: "",
+              repo_msg: "GIT 아이디를 입력해주세요",
+              repo_id: this.state.git.repo_id,
+              repo_password: this.state.git.repo_password,
+            },
+          });
+        }
       }
     }
   };
@@ -383,13 +392,45 @@ class MasterPanel extends Component {
 
   // 리포지토리 체크
   getCheckGitRep = async (e) => {
-    let msg = "";
+    let res;
     try {
-      msg = await getExistRepository(this.state.git.repo);
+      if(this.state.git.repo === ""){
+        this.setState({
+          git: {
+            repo: "",
+            repo_msg: "GIT 리포지토리를 입력해주세요.",
+            repo_id: this.state.git.repo_id,
+            repo_password: this.state.git.repo_password,
+          },
+        });        
+      } else {        
+        res = await getExistRepository(this.state.git.repo);
+      
+        console.log(this.state.git.repo.includes('github'));
+
+        if(res.data.exist === false || (this.state.git.repo.includes('github') === false && this.state.git.repo.includes('gitlab') === false)){
+          this.setState({
+            git: {
+              repo: "",
+              repo_msg: "GIT 리포지토리를 확인해주세요.",
+              repo_id: this.state.git.repo_id,
+              repo_password: this.state.git.repo_password,
+            },
+         });
+        } else {
+          this.setState({
+            git: {
+              repo: this.state.git.repo,
+              repo_msg: "GIT 리포지토리가 존재합니다.",
+              repo_id: this.state.git.repo_id,
+              repo_password: this.state.git.repo_password,
+            },
+         });
+        }
+      } 
     } catch (error) {
-      console.log(error);
+      console.log(error);      
     }
-    console.log(msg);
   };
 
   // 깃리포지토리 작성
@@ -458,7 +499,6 @@ class MasterPanel extends Component {
       },
     });
 
-    console.log(this.state);
   };
 
   setUrl = (e, k) => {
@@ -528,6 +568,17 @@ class MasterPanel extends Component {
         </div>
 
         <h2 id="title-content">컨테이너 생성</h2>
+        <Message
+          warning
+          style={
+            this.state.container_cnt < 10
+              ? { display: "none" }
+              : { display: "block" }
+          }
+        >
+          <Message.Header>Warnning</Message.Header>
+          <p>컨테이너 생성 갯수는 10개로 제한됩니다.</p>
+        </Message>
         <div className="inner-content">
           <Segment>
             <Form size="large">
@@ -665,6 +716,7 @@ class MasterPanel extends Component {
                   onChange={this.inputGitRep}
                   error={
                     this.state.group3 !== "non" &&
+                    this.state.git.repo === "" &&
                     this.state.git.repo_msg !== ""
                       ? true
                       : false
@@ -674,19 +726,28 @@ class MasterPanel extends Component {
                   <Message
                     error
                     style={
-                      this.state.group3 !== "non" &&
-                      this.state.git.repo_msg !== ""
-                        ? { display: "block", marginLeft: "20px" }
+                      this.state.group3 !== "non" && this.state.git.repo_msg !== "" && this.state.git.repo === ""
+                        ? { display: "block" }
                         : { display: "none" }
                     }
                   >
                     <Message.Header>Warnning</Message.Header>
                     <p>{this.state.git.repo_msg}</p>
                   </Message>
+                  <Message                    
+                    style={
+                      this.state.group3 !== "non" && this.state.git.repo_msg !== "" && this.state.git.repo !== ""
+                        ? { display: "block" }
+                        : { display: "none" }
+                    }
+                  >
+                    <Message.Header>Check</Message.Header>
+                    <p>{this.state.git.repo_msg}</p>
+                  </Message>
                 </div>
-                {/* <Button size="large" style={{marginLeft: "5px"}} onClick={this.getCheckGitRep}>
+                <Button size="large" style={this.state.group3 !== "non" ? {marginLeft: "5px", display:"block"} : {display:"none"}} onClick={this.getCheckGitRep}>
                   <Icon name="check"/> 체크
-                </Button> */}
+                </Button>
                 </Form.Group>
             </Form>
 

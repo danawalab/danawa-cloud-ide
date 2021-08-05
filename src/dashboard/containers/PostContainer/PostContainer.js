@@ -4,7 +4,13 @@ import { Header, LeftWrapper, RightWrapper, SideBar, DetailPanel } from "../../c
 class PostContainer extends Component {
   constructor(props){
     super(props);
-    this.state = {userId: props.location.state}
+    this.state = {userId: props.location.state, arr: ""}
+  }
+
+  parentFunction = (text) => {
+    this.setState({
+      arr : text
+    });
   }
 
   render() {
@@ -15,12 +21,12 @@ class PostContainer extends Component {
         </div>
         <div>
           <LeftWrapper>
-            <SideBar userId={this.state}></SideBar>
+            <SideBar userId={this.state} arr={this.state}></SideBar>
           </LeftWrapper>
         </div>
         <div>
           <RightWrapper>
-            <DetailPanel userId={this.state}></DetailPanel>
+            <DetailPanel userId={this.state} parentFunction={this.parentFunction}></DetailPanel>
           </RightWrapper>
         </div>
       </div>
